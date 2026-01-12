@@ -81,6 +81,8 @@
 
   <!-- ===== SCRIPT ===== -->
   <script>
+    const TEST_MODE = true; // ← auf false setzen, wenn es ernst wird
+
     const hints = [
       { date: '2026-01-21', title: 'Januar ❤️', text: 'Hier kommt dein erster Hinweis…', img: 'hinweis01.jpg' },
       { date: '2026-02-21', title: 'Februar ❤️', text: 'Der zweite kleine Hinweis wartet auf dich…', img: 'hinweis02.jpg' },
@@ -99,9 +101,9 @@
     const container = document.getElementById('hints-container');
     const now = new Date();
 
-    // Anzeigen freigeschalteter Hinweise
+    // Anzeigen freigeschalteter Hinweise Änderungen hier durchführen wenn erst wird
     hints.forEach(hint => {
-      if (now >= new Date(hint.date)) {
+      if (TEST_MODE || now >= new Date(hint.date)) {
         const div = document.createElement('div');
         div.className = 'hint';
         div.innerHTML = `
