@@ -143,5 +143,40 @@
     }
   </script>
 
+  <!-- ===== MUSIK ===== -->
+<audio id="bg-music" loop>
+  <source src="Send Me On My Way.mp3" type="audio/mpeg">
+</audio>
+
+<button id="music-btn" style="
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px 16px;
+  font-size: 14px;
+  border: none;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.85);
+  cursor: pointer;
+  display: none;
+">
+  🎵 Musik starten
+</button>
+
+<script>
+  const music = document.getElementById('bg-music');
+  const btn = document.getElementById('music-btn');
+
+  // Autostart versuchen
+  music.play().catch(() => {
+    btn.style.display = 'block';
+  });
+
+  btn.addEventListener('click', () => {
+    music.play();
+    btn.style.display = 'none';
+  });
+</script>
+
 </body>
 </html>
