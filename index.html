@@ -11,19 +11,37 @@
       color: #fff;
       text-align: center;
     }
-    .hero {
-      height: 100vh;
-      background: url('IMG_6446.heic') center/cover no-repeat;
-      background-color: #000; /* falls Bild nicht ganz füllt */
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      backdrop-filter: brightness(0.6);
+
+    /* Container für Bild + Text */
+    .hero-container {
+      position: relative;
+      text-align: center;
+      width: 100%;
+      max-width: 100%;
     }
+
+    /* Bild selbst */
+    .hero-image {
+      width: 100%;
+      height: auto; /* Höhe proportional */
+      display: block;
+    }
+
+    /* Text auf dem Bild */
+    .hero-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      text-shadow: 2px 2px 4px #000;
+    }
+
     h1 {
       font-size: 3em;
-      margin-bottom: 10px;
+      margin: 0;
     }
+
     p {
       font-size: 1.2em;
     }
@@ -31,12 +49,14 @@
 </head>
 <body>
 
-<div class="hero">
-  <img src="IMG_6446.heic" alt="Wir" style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
-  <h1>Für dich ❤️</h1>
-  <p>Jeden Monat ein kleiner Hinweis…</p>
-</div>
-
+  <div class="hero-container">
+    <img src="IMG_6446.jpeg" alt="Wir" class="hero-image">
+    <div class="hero-text">
+      <h1>Für dich ❤️</h1>
+      <p>Jeden Monat ein kleiner Hinweis…</p>
+    </div>
+  </div>
 
 </body>
 </html>
+
