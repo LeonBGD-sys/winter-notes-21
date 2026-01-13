@@ -72,8 +72,9 @@
       }
     }
 
+    /* ===== COUNTDOWN ===== */
     .countdown {
-      margin: 40px;
+      margin: 50px 20px;
       font-size: 1.2em;
     }
   </style>
@@ -93,33 +94,53 @@
   <!-- ===== HINWEISE ===== -->
   <div id="hints-container"></div>
 
-  <!-- ===== SCRIPT ===== -->
   <script>
-    const TEST_MODE = true; // ← später auf false setzen
+    /* ================== EINSTELLUNGEN ================== */
+    const TEST_MODE = false; // ← NUR ZUM TESTEN true setzen
 
+    /* ================== WARTE-TEXTE ================== */
+    const waitingTexts = [
+      "Tut mir leid ❤️ aber du musst dich noch ein bisschen gedulden…",
+      "Haha, nice try 😏 leider ist es noch nicht so weit.",
+      "Geduld ist eine Tugend… und du hast sie 😌",
+      "Noch nicht! Aber Vorfreude ist doch auch schön 💫",
+      "Ich weiß, du bist neugierig… aber noch ein wenig warten 💛",
+      "Fast… naja, nicht wirklich 😄 aber bald!",
+      "Schummeln gilt nicht 😉 der Countdown läuft!",
+      "Noch ist es ein Geheimnis 🤫",
+      "Jeder Blick macht es spannender… aber noch nicht!",
+      "Du bist früh dran 😌 aber das Warten lohnt sich.",
+      "Vielleicht morgen… oder übermorgen… oder bald 💭",
+      "Nein nein 😄 noch nicht schauen!",
+      "Die Zeit arbeitet für uns ⏳❤️"
+    ];
+
+    /* ================== HINWEISE ================== */
     const hints = [
-      { date: '2026-01-21', title: 'Januar ❤️', text: 'Hier kommt dein erster Hinweis…', img: 'hinweis01.png' },
+      { date: '2026-01-21', title: 'Januar ❤️', text: 'Hier kommt dein erster Hinweis…', img: 'hinweis01.jpg' },
       { date: '2026-02-21', title: 'Februar ❤️', text: 'Der zweite kleine Hinweis wartet auf dich…', img: 'hinweis02.png' },
-      { date: '2026-03-21', title: 'März ❤️', text: 'Ein neuer Monat, ein neuer Hinweis…', img: 'hinweis03.png' },
-      { date: '2026-04-21', title: 'April ❤️', text: 'Vielleicht erinnerst du dich an diesen Moment…', img: 'hinweis04.png' },
-      { date: '2026-05-21', title: 'Mai ❤️', text: 'Ein weiterer kleiner Hinweis für dich…', img: 'hinweis05.png' },
-      { date: '2026-06-21', title: 'Juni ❤️', text: 'Halbzeit – und immer noch nur für dich…', img: 'hinweis06.png' },
-      { date: '2026-07-21', title: 'Juli ❤️', text: 'Der Sommer bringt neue Erinnerungen…', img: 'hinweis07.png' },
-      { date: '2026-08-21', title: 'August ❤️', text: 'Ein warmer Hinweis für einen warmen Monat…', img: 'hinweis08.png' },
-      { date: '2026-09-21', title: 'September ❤️', text: 'Der Herbst kommt langsam näher…', img: 'hinweis09.png' },
-      { date: '2026-10-21', title: 'Oktober ❤️', text: 'Ein geheimnisvoller Hinweis…', img: 'hinweis10.png' },
-      { date: '2026-11-21', title: 'November ❤️', text: 'Fast am Ziel…', img: 'hinweis11.png' },
-      { date: '2026-12-24', title: '24. Dezember 🎄❤️', text: 'Der letzte Hinweis – und vielleicht der schönste…', img: 'hinweis12.png' }
+      { date: '2026-03-21', title: 'März ❤️', text: 'Ein neuer Monat, ein neuer Hinweis…', img: 'hinweis03.jpg' },
+      { date: '2026-04-21', title: 'April ❤️', text: 'Vielleicht erinnerst du dich an diesen Moment…', img: 'hinweis04.jpg' },
+      { date: '2026-05-21', title: 'Mai ❤️', text: 'Ein weiterer kleiner Hinweis für dich…', img: 'hinweis05.jpg' },
+      { date: '2026-06-21', title: 'Juni ❤️', text: 'Halbzeit – und immer noch nur für dich…', img: 'hinweis06.jpg' },
+      { date: '2026-07-21', title: 'Juli ❤️', text: 'Der Sommer bringt neue Erinnerungen…', img: 'hinweis07.jpg' },
+      { date: '2026-08-21', title: 'August ❤️', text: 'Ein warmer Hinweis für einen warmen Monat…', img: 'hinweis08.jpg' },
+      { date: '2026-09-21', title: 'September ❤️', text: 'Der Herbst kommt langsam näher…', img: 'hinweis09.jpg' },
+      { date: '2026-10-21', title: 'Oktober ❤️', text: 'Ein geheimnisvoller Hinweis…', img: 'hinweis10.jpg' },
+      { date: '2026-11-21', title: 'November ❤️', text: 'Fast am Ziel…', img: 'hinweis11.jpg' },
+      { date: '2026-12-24', title: '24. Dezember 🎄❤️', text: 'Der letzte Hinweis – und vielleicht der schönste…', img: 'hinweis12.jpg' }
     ];
 
     const container = document.getElementById('hints-container');
     const now = new Date();
 
+    /* ================== HINWEISE ANZEIGEN ================== */
     hints.forEach((hint, index) => {
       if (TEST_MODE || now >= new Date(hint.date)) {
         const div = document.createElement('div');
         div.className = 'hint fade-in';
-        div.style.animationDelay = `${(index + 1) * 3.5}s`;
+        div.style.animationDelay = `${(index + 1) * 2.5}s`;
+
         div.innerHTML = `
           <h2>${hint.title}</h2>
           <p>${hint.text}</p>
@@ -129,10 +150,21 @@
       }
     });
 
+    /* ================== COUNTDOWN + TEXT ================== */
     const nextHint = hints.find(h => now < new Date(h.date));
-    if (nextHint && !TEST_MODE) {
+
+    if (nextHint) {
       const countdown = document.createElement('div');
       countdown.className = 'countdown';
+
+      const randomText =
+        waitingTexts[Math.floor(Math.random() * waitingTexts.length)];
+
+      countdown.innerHTML = `
+        <p style="margin-bottom: 15px;">${randomText}</p>
+        <p>Nächster Hinweis in<br><strong id="cd"></strong></p>
+      `;
+
       container.appendChild(countdown);
 
       function updateCountdown() {
@@ -144,11 +176,8 @@
         const minutes = Math.floor((diff / (1000 * 60)) % 60);
         const seconds = Math.floor((diff / 1000) % 60);
 
-        countdown.innerHTML =
-          `Nächster Hinweis in <strong>${days}</strong> Tagen, 
-           <strong>${hours}</strong> Stunden, 
-           <strong>${minutes}</strong> Minuten, 
-           <strong>${seconds}</strong> Sekunden ❤️`;
+        document.getElementById('cd').innerHTML =
+          `${days} Tagen, ${hours} Stunden, ${minutes} Minuten, ${seconds} Sekunden ❤️`;
       }
 
       setInterval(updateCountdown, 1000);
