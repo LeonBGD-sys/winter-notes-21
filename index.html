@@ -13,7 +13,7 @@
       text-align: center;
     }
 
-    /* ===== HERO (Bild + Text) ===== */
+    /* ===== HERO ===== */
     .hero-container {
       position: relative;
       width: 100%;
@@ -46,20 +46,6 @@
 
     /* ===== HINWEISE ===== */
     .hint {
-      /* ===== ANIMATION ===== */
-.fade-in {
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeInUp 1s forwards;
-}
-
-@keyframes fadeInUp {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
       margin: 40px auto;
       max-width: 800px;
       padding: 0 20px;
@@ -70,6 +56,20 @@
       height: auto;
       border-radius: 12px;
       margin-top: 10px;
+    }
+
+    /* ===== ANIMATION ===== */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 1s forwards;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .countdown {
@@ -90,12 +90,12 @@
     </div>
   </div>
 
-  <!-- ===== HINWEISE CONTAINER ===== -->
+  <!-- ===== HINWEISE ===== -->
   <div id="hints-container"></div>
 
   <!-- ===== SCRIPT ===== -->
   <script>
-    const TEST_MODE = true; // ← auf false setzen, wenn es ernst wird
+    const TEST_MODE = true; // ← später auf false setzen
 
     const hints = [
       { date: '2026-01-21', title: 'Januar ❤️', text: 'Hier kommt dein erster Hinweis…', img: 'hinweis01.jpg' },
@@ -115,25 +115,22 @@
     const container = document.getElementById('hints-container');
     const now = new Date();
 
-    // Anzeigen freigeschalteter Hinweise Änderungen hier durchführen wenn erst wird
-   hints.forEach((hint, index) => {
-  if (TEST_MODE || now >= new Date(hint.date)) {
-    const div = document.createElement('div');
-    div.className = 'hint fade-in';
-    div.style.animationDelay = `${index * 0.5}s`; // jeder Hinweis 0.5s später
-    div.innerHTML = `
-      <h2>${hint.title}</h2>
-      <p>${hint.text}</p>
-      <img src="${hint.img}">
-    `;
-    container.appendChild(div);
-  }
-});
+    hints.forEach((hint, index) => {
+      if (TEST_MODE || now >= new Date(hint.date)) {
+        const div = document.createElement('div');
+        div.className = 'hint fade-in';
+        div.style.animationDelay = `${index * 0.5}s`;
+        div.innerHTML = `
+          <h2>${hint.title}</h2>
+          <p>${hint.text}</p>
+          <img src="${hint.img}">
+        `;
+        container.appendChild(div);
+      }
+    });
 
-
-    // Countdown
     const nextHint = hints.find(h => now < new Date(h.date));
-    if (nextHint) {
+    if (nextHint && !TEST_MODE) {
       const countdown = document.createElement('div');
       countdown.className = 'countdown';
       container.appendChild(countdown);
@@ -159,27 +156,25 @@
     }
   </script>
 
-<!-- ===== MUSIK ===== -->
-<audio id="bg-music" loop>
-  <source src="Send Me On My Way.mp3" type="audio/mpeg">
-</audio>
+  <!-- ===== MUSIK ===== -->
+  <audio id="bg-music" loop>
+    <source src="Send Me On My Way.mp3" type="audio/mpeg">
+  </audio>
 
-<script>
-  const music = document.getElementById('bg-music');
-  let musicStarted = false;
+  <script>
+    const music = document.getElementById('bg-music');
+    let musicStarted = false;
 
-  function startMusic() {
-    if (!musicStarted) {
-      music.play();
-      musicStarted = true;
-      document.removeEventListener('click', startMusic);
+    function startMusic() {
+      if (!musicStarted) {
+        music.play();
+        musicStarted = true;
+        document.removeEventListener('click', startMusic);
+      }
     }
-  }
 
-  // Startet Musik beim ERSTEN Klick irgendwo auf der Seite
-  document.addEventListener('click', startMusic);
-</script>
-
+    document.addEventListener('click', startMusic);
+  </script>
 
 </body>
 </html>
