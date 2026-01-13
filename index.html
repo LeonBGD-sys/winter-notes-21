@@ -61,8 +61,8 @@
     /* ===== ANIMATION ===== */
     .fade-in {
       opacity: 0;
-      transform: translateY(20px);
-      animation: fadeInUp 1s forwards;
+      transform: translateY(30px);
+      animation: fadeInUp 2s ease-out forwards;
     }
 
     @keyframes fadeInUp {
@@ -119,7 +119,7 @@
       if (TEST_MODE || now >= new Date(hint.date)) {
         const div = document.createElement('div');
         div.className = 'hint fade-in';
-        div.style.animationDelay = `${index * 0.5}s`;
+        div.style.animationDelay = `${(index + 1) * 3.5}s`;
         div.innerHTML = `
           <h2>${hint.title}</h2>
           <p>${hint.text}</p>
