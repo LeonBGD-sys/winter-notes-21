@@ -1,241 +1,231 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <title>Für dich ❤️</title>
+<meta charset="UTF-8">
+<title>Für dich ❤️</title>
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #000;
+    color: #fff;
+    text-align: center;
+  }
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #000;
-      color: #fff;
-      text-align: center;
-    }
+  /* ===== HERO ===== */
+  .hero-container {
+    position: relative;
+    height: 100vh;
+    overflow: hidden;
+  }
 
-    /* ===== HERO ===== */
-    .hero-container {
-      position: relative;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    #slideshow {
+  #slideshow {
     position: absolute;
     inset: 0;
-    background-size: contain;   /* GANZES Bild sichtbar */
+    background-size: contain;       /* Ganze Bilder sichtbar, keine Abschneidung */
     background-position: center;
     background-repeat: no-repeat;
-    background-color: #000;     /* schwarze Balken statt Abschneiden */
+    background-color: #000;
     transition: opacity 1.5s ease-in-out;
     z-index: -1;
   }
 
+  .hero-text {
+    position: absolute;
+    top: 20px;                     /* Text oben statt mittig */
+    left: 50%;
+    transform: translateX(-50%);
+    text-shadow: 2px 2px 6px #000;
+    z-index: 2;
+  }
 
-    .hero-text {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      text-shadow: 2px 2px 6px #000;
-    }
+  .hero-text h1 {
+    font-size: 2.8em;
+    margin: 0;
+  }
 
-    .hero-text h1 {
-      font-size: 3em;
-      margin: 0;
-    }
+  .hero-text p {
+    font-size: 1.2em;
+    margin-top: 5px;
+  }
 
-    .hero-text p {
-      font-size: 1.2em;
-      margin-top: 10px;
-    }
+  #hero-countdown {
+    margin-top: 10px;
+    font-size: 1.1em;
+    font-style: italic;
+    opacity: 0.9;
+  }
 
-    /* ===== HINWEISE ===== */
-    .hint {
-      margin: 60px auto;
-      max-width: 800px;
-      padding: 0 20px;
-    }
+  /* ===== HINWEISE ===== */
+  .hint {
+    margin: 60px auto;
+    max-width: 800px;
+    padding: 0 20px;
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeInUp 1.2s ease forwards;
+  }
 
-    .hint img {
-      width: 100%;
-      border-radius: 12px;
-      margin-top: 15px;
-    }
+  .hint img {
+    width: 100%;
+    border-radius: 12px;
+    margin-top: 15px;
+  }
 
-    /* ===== ANIMATION ===== */
-    .fade-in {
-      opacity: 0;
-      transform: translateY(30px);
-      animation: fadeInUp 1.2s ease forwards;
+  @keyframes fadeInUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
-
-    @keyframes fadeInUp {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    /* ===== COUNTDOWN ===== */
-    .countdown-wrapper {
-      margin: 60px 20px;
-      font-size: 1.2em;
-    }
-
-    .waiting-text {
-      margin-bottom: 15px;
-      font-style: italic;
-      opacity: 0.9;
-    }
-  </style>
+  }
+</style>
 </head>
-
 <body>
 
 <!-- ===== HERO ===== -->
 <div class="hero-container">
   <div id="slideshow"></div>
-
   <div class="hero-text">
     <h1>Für dich ❤️</h1>
     <p>Jeden Monat ein kleiner Hinweis…</p>
+    <div id="hero-countdown"></div>
   </div>
 </div>
 
 <div id="hints-container"></div>
 
 <script>
-  /*************** MODUS ***************/
-  const TEST_MODE = false; 
-  // true  = alles sichtbar (Test)
-  // false = echtes Erlebnis für deine Freundin
+/*************** MODUS ***************/
+const TEST_MODE = false; // true = Testmodus, false = echtes Erlebnis
 
-  /*************** WARTE-TEXTE ***************/
-  const waitingTexts = [
-    "Tut mir leid… du musst dich noch etwas gedulden ❤️",
-    "Haha, nice try 😌",
-    "Geduld ist eine Tugend… 😉",
-    "Noch nicht… aber bald 🕰️",
-    "Ich weiß, du bist neugierig 😏",
-    "Fast… aber eben nur fast ❤️",
-    "Schummeln gilt nicht 😄",
-    "Ein bisschen Spannung muss sein ✨",
-    "Warten gehört manchmal dazu 💭",
-    "Noch ist es nicht soweit…"
-  ];
+/*************** WARTE-TEXTE ***************/
+const waitingTexts = [
+  "Tut mir leid… du musst dich noch etwas gedulden ❤️",
+  "Haha, nice try 😌",
+  "Geduld ist eine Tugend… 😉",
+  "Noch nicht… aber bald 🕰️",
+  "Ich weiß, du bist neugierig 😏",
+  "Fast… aber eben nur fast ❤️",
+  "Schummeln gilt nicht 😄",
+  "Ein bisschen Spannung muss sein ✨",
+  "Warten gehört manchmal dazu 💭",
+  "Noch ist es nicht soweit…"
+];
 
-  /*************** ZUFALLSDATEN ***************/
-  function randomDay(year, month) {
-    const days = new Date(year, month + 1, 0).getDate();
-    return Math.floor(Math.random() * (days - 6)) + 3;
+/*************** ZUFALLSDATEN ***************/
+function randomDay(year, month) {
+  const days = new Date(year, month + 1, 0).getDate();
+  return Math.floor(Math.random() * (days - 6)) + 3;
+}
+
+function generateDates() {
+  const stored = localStorage.getItem("hintDates");
+  if (stored) return JSON.parse(stored);
+
+  const dates = ["2026-01-21"];
+  for (let m = 1; m < 12; m++) {
+    const d = randomDay(2026, m);
+    dates.push(new Date(2026, m, d).toISOString().split("T")[0]);
   }
+  localStorage.setItem("hintDates", JSON.stringify(dates));
+  return dates;
+}
+const hintDates = generateDates();
 
-  function generateDates() {
-    const stored = localStorage.getItem("hintDates");
-    if (stored) return JSON.parse(stored);
+/*************** HINWEISE ***************/
+const hints = [
+  { title: "Januar ❤️", text: "Hier kommt dein erster Hinweis…", img: "hinweis01.png" },
+  { title: "Februar ❤️", text: "Der zweite kleine Hinweis wartet…", img: "hinweis02.png" },
+  { title: "März ❤️", text: "Ein neuer Monat, ein neuer Hinweis…", img: "hinweis03.png" },
+  { title: "April ❤️", text: "Vielleicht erinnerst du dich…", img: "hinweis04.png" },
+  { title: "Mai ❤️", text: "Ein weiterer Hinweis für dich…", img: "hinweis05.png" },
+  { title: "Juni ❤️", text: "Halbzeit…", img: "hinweis06.png" },
+  { title: "Juli ❤️", text: "Sommer & Erinnerungen…", img: "hinweis07.png" },
+  { title: "August ❤️", text: "Warm wie dieser Monat…", img: "hinweis08.png" },
+  { title: "September ❤️", text: "Der Herbst kommt näher…", img: "hinweis09.png" },
+  { title: "Oktober ❤️", text: "Ein geheimnisvoller Hinweis…", img: "hinweis10.png" },
+  { title: "November ❤️", text: "Fast am Ziel…", img: "hinweis11.png" },
+  { title: "24. Dezember 🎄❤️", text: "Der letzte Hinweis…", img: "hinweis12.png" }
+];
 
-    const dates = ["2026-01-21"];
-    for (let m = 1; m < 12; m++) {
-      const d = randomDay(2026, m);
-      dates.push(new Date(2026, m, d).toISOString().split("T")[0]);
-    }
+const container = document.getElementById("hints-container");
+const now = new Date();
 
-    localStorage.setItem("hintDates", JSON.stringify(dates));
-    return dates;
+hints.forEach((hint, i) => {
+  if (TEST_MODE || now >= new Date(hintDates[i])) {
+    const div = document.createElement("div");
+    div.className = "hint";
+    div.style.animationDelay = `${(i+1)*2.5}s`;
+    div.innerHTML = `<h2>${hint.title}</h2><p>${hint.text}</p><img src="${hint.img}">`;
+    container.appendChild(div);
   }
+});
 
-  const hintDates = generateDates();
+/*************** HERO COUNTDOWN ***************/
+if (!TEST_MODE) {
+  const nextIndex = hintDates.findIndex(d => now < new Date(d));
+  if (nextIndex !== -1) {
+    const heroCountdown = document.getElementById("hero-countdown");
+    function updateCountdown() {
+      const diff = new Date(hintDates[nextIndex]) - new Date();
+      if(diff <= 0) location.reload();
+      const days = Math.floor(diff / (1000*60*60*24));
+      const hours = Math.floor((diff / (1000*60*60)) % 24);
+      const minutes = Math.floor((diff / (1000*60)) % 60);
 
-  /*************** HINWEISE ***************/
-  const hints = [
-    { title: "Januar ❤️", text: "Hier kommt dein erster Hinweis…", img: "hinweis01.png" },
-    { title: "Februar ❤️", text: "Der zweite kleine Hinweis wartet…", img: "hinweis02.png" },
-    { title: "März ❤️", text: "Ein neuer Monat, ein neuer Hinweis…", img: "hinweis03.png" },
-    { title: "April ❤️", text: "Vielleicht erinnerst du dich…", img: "hinweis04.png" },
-    { title: "Mai ❤️", text: "Ein weiterer Hinweis für dich…", img: "hinweis05.png" },
-    { title: "Juni ❤️", text: "Halbzeit…", img: "hinweis06.png" },
-    { title: "Juli ❤️", text: "Sommer & Erinnerungen…", img: "hinweis07.png" },
-    { title: "August ❤️", text: "Warm wie dieser Monat…", img: "hinweis08.png" },
-    { title: "September ❤️", text: "Der Herbst kommt näher…", img: "hinweis09.png" },
-    { title: "Oktober ❤️", text: "Ein geheimnisvoller Hinweis…", img: "hinweis10.png" },
-    { title: "November ❤️", text: "Fast am Ziel…", img: "hinweis11.png" },
-    { title: "24. Dezember 🎄❤️", text: "Der letzte Hinweis…", img: "hinweis12.png" }
-  ];
-
-  const container = document.getElementById("hints-container");
-  const now = new Date();
-
-  hints.forEach((hint, i) => {
-    if (TEST_MODE || now >= new Date(hintDates[i])) {
-      const div = document.createElement("div");
-      div.className = "hint fade-in";
-      div.style.animationDelay = `${(i + 1) * 2.5}s`;
-      div.innerHTML = `<h2>${hint.title}</h2><p>${hint.text}</p><img src="${hint.img}">`;
-      container.appendChild(div);
-    }
-  });
-
-  if (!TEST_MODE) {
-    const nextIndex = hintDates.findIndex(d => now < new Date(d));
-    if (nextIndex !== -1) {
-      const wrap = document.createElement("div");
-      wrap.className = "countdown-wrapper";
-      wrap.innerHTML = `
-        <div class="waiting-text">${waitingTexts[Math.floor(Math.random() * waitingTexts.length)]}</div>
-        <div id="countdown"></div>
+      const randomText = waitingTexts[Math.floor(Math.random() * waitingTexts.length)];
+      heroCountdown.innerHTML = `
+        ${randomText}<br>
+        <strong>Nächster Hinweis in ${days} Tagen, ${hours} Stunden, ${minutes} Minuten ❤️</strong>
       `;
-      container.appendChild(wrap);
-
-      setInterval(() => {
-        const diff = new Date(hintDates[nextIndex]) - new Date();
-        if (diff <= 0) location.reload();
-        document.getElementById("countdown").innerHTML =
-          `Nächster Hinweis in <strong>${Math.floor(diff / 86400000)}</strong> Tagen ❤️`;
-      }, 1000);
     }
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
   }
+}
 
-  /*************** SLIDESHOW ***************/
-  const backgrounds = [
-    "Hintergrund01.png","Hintergrund02.png","Hintergrund03.png",
-    "Hintergrund04.png","Hintergrund05.png","Hintergrund06.png",
-    "Hintergrund07.png","Hintergrund08.png","Hintergrund09.png",
-    "Hintergrund10.png","Hintergrund11.png","Hintergrund12.png",
-    "Hintergrund13.png","Hintergrund14.png","Hintergrund15.png",
-    "Hintergrund16.png","Hintergrund17.png","Hintergrund18.png",
-    "Hintergrund19.png","Hintergrund20.png","Hintergrund21.png",
-  ];
+/*************** HINTERGRUND-SLIDESHOW ***************/
+let backgrounds = [
+  "Hintergrund01.png","Hintergrund02.png","Hintergrund03.png",
+  "Hintergrund04.png","Hintergrund05.png","Hintergrund06.png",
+  "Hintergrund07.png","Hintergrund08.png","Hintergrund09.png",
+  "Hintergrund10.png","Hintergrund11.png","Hintergrund12.png",
+  "Hintergrund13.png","Hintergrund14.png","Hintergrund15.png",
+  "Hintergrund16.png","Hintergrund17.png","Hintergrund18.png",
+  "Hintergrund19.png","Hintergrund20.png"
+];
 
-  let bgIndex = 0;
-  const slide = document.getElementById("slideshow");
-  slide.style.backgroundImage = `url(${backgrounds[0]})`;
+// Zufällige Reihenfolge
+backgrounds = backgrounds.sort(() => Math.random() - 0.5);
 
-  setInterval(() => {
-    slide.style.opacity = 0;
-    setTimeout(() => {
-      bgIndex = (bgIndex + 1) % backgrounds.length;
-      slide.style.backgroundImage = `url(${backgrounds[bgIndex]})`;
-      slide.style.opacity = 1;
-    }, 1500);
-  }, 4000);
-</script>
+let bgIndex = 0;
+const slide = document.getElementById("slideshow");
+slide.style.backgroundImage = `url(${backgrounds[bgIndex]})`;
 
-<!-- ===== MUSIK ===== -->
+setInterval(() => {
+  slide.style.opacity = 0;
+  setTimeout(() => {
+    bgIndex = (bgIndex + 1) % backgrounds.length;
+    slide.style.backgroundImage = `url(${backgrounds[bgIndex]})`;
+    slide.style.opacity = 1;
+  }, 1500);
+}, 4000);
+
+/*************** MUSIK ***************/
 <audio id="bg-music" loop>
   <source src="Send Me On My Way.mp3" type="audio/mpeg">
 </audio>
 
 <script>
-  let started = false;
-  document.addEventListener("click", () => {
-    if (!started) {
-      document.getElementById("bg-music").play();
-      started = true;
-    }
-  });
+let started = false;
+document.addEventListener("click", () => {
+  if(!started){
+    document.getElementById("bg-music").play();
+    started = true;
+  }
+});
+</script>
 </script>
 
 </body>
 </html>
-
