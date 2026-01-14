@@ -21,13 +21,16 @@
     }
 
     #slideshow {
-      position: absolute;
-      inset: 0;
-      background-size: cover;
-      background-position: center;
-      transition: opacity 1.5s ease-in-out;
-      z-index: -1;
-    }
+    position: absolute;
+    inset: 0;
+    background-size: contain;   /* GANZES Bild sichtbar */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: #000;     /* schwarze Balken statt Abschneiden */
+    transition: opacity 1.5s ease-in-out;
+    z-index: -1;
+  }
+
 
     .hero-text {
       position: absolute;
