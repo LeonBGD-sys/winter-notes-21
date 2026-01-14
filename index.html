@@ -30,7 +30,6 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      color: white;
       text-shadow: 2px 2px 6px #000;
     }
 
@@ -46,7 +45,7 @@
 
     /* ===== HINWEISE ===== */
     .hint {
-      margin: 40px auto;
+      margin: 60px auto;
       max-width: 800px;
       padding: 0 20px;
     }
@@ -55,14 +54,14 @@
       width: 100%;
       height: auto;
       border-radius: 12px;
-      margin-top: 10px;
+      margin-top: 15px;
     }
 
     /* ===== ANIMATION ===== */
     .fade-in {
       opacity: 0;
       transform: translateY(30px);
-      animation: fadeInUp 2s ease-out forwards;
+      animation: fadeInUp 1.2s ease forwards;
     }
 
     @keyframes fadeInUp {
@@ -73,137 +72,163 @@
     }
 
     /* ===== COUNTDOWN ===== */
-    .countdown {
-      margin: 50px 20px;
+    .countdown-wrapper {
+      margin: 60px 20px;
       font-size: 1.2em;
+    }
+
+    .waiting-text {
+      margin-bottom: 15px;
+      font-style: italic;
+      opacity: 0.9;
     }
   </style>
 </head>
 
 <body>
 
-  <!-- ===== HERO ===== -->
-  <div class="hero-container">
-    <img src="IMG_6446.jpeg" alt="Wir" class="hero-image">
-    <div class="hero-text">
-      <h1>Für dich ❤️</h1>
-      <p>Jeden Monat ein kleiner Hinweis…</p>
-    </div>
+<!-- ===== HERO ===== -->
+<div class="hero-container">
+  <img src="IMG_6446.jpeg" alt="Wir" class="hero-image">
+  <div class="hero-text">
+    <h1>Für dich ❤️</h1>
+    <p>Jeden Monat ein kleiner Hinweis…</p>
   </div>
+</div>
 
-  <!-- ===== HINWEISE ===== -->
-  <div id="hints-container"></div>
+<div id="hints-container"></div>
 
-  <script>
-    /* ================== EINSTELLUNGEN ================== */
-    const TEST_MODE = false; // ← NUR ZUM TESTEN true setzen
+<script>
+  /*************** MODUS ***************/
+  const TEST_MODE = false; // true = alles sichtbar | false = echtes Erlebnis
 
-    /* ================== WARTE-TEXTE ================== */
-    const waitingTexts = [
-      "Tut mir leid ❤️ aber du musst dich noch ein bisschen gedulden…",
-      "Haha, nice try 😏 leider ist es noch nicht so weit.",
-      "Geduld ist eine Tugend… und du hast sie 😌",
-      "Noch nicht! Aber Vorfreude ist doch auch schön 💫",
-      "Ich weiß, du bist neugierig… aber noch ein wenig warten 💛",
-      "Fast… naja, nicht wirklich 😄 aber bald!",
-      "Schummeln gilt nicht 😉 der Countdown läuft!",
-      "Noch ist es ein Geheimnis 🤫",
-      "Jeder Blick macht es spannender… aber noch nicht!",
-      "Du bist früh dran 😌 aber das Warten lohnt sich.",
-      "Vielleicht morgen… oder übermorgen… oder bald 💭",
-      "Nein nein 😄 noch nicht schauen!",
-      "Die Zeit arbeitet für uns ⏳❤️"
-    ];
+  /*************** WARTE-TEXTE ***************/
+  const waitingTexts = [
+    "Tut mir leid… du musst dich noch etwas gedulden ❤️",
+    "Haha, nice try 😌",
+    "Geduld ist eine Tugend… besonders hier 😉",
+    "Noch nicht… aber bald 🕰️",
+    "Ich weiß, du bist neugierig 😏",
+    "Fast… aber eben nur fast ❤️",
+    "Schummeln gilt nicht 😄",
+    "Ein bisschen Spannung muss sein ✨",
+    "Warten gehört manchmal dazu 💭",
+    "Noch ist es nicht soweit…"
+  ];
 
-    /* ================== HINWEISE ================== */
-    const hints = [
-      { date: '2026-01-21', title: 'Januar ❤️', text: 'Hier kommt dein erster Hinweis…', img: 'hinweis01.jpg' },
-      { date: '2026-02-21', title: 'Februar ❤️', text: 'Der zweite kleine Hinweis wartet auf dich…', img: 'hinweis02.png' },
-      { date: '2026-03-21', title: 'März ❤️', text: 'Ein neuer Monat, ein neuer Hinweis…', img: 'hinweis03.jpg' },
-      { date: '2026-04-21', title: 'April ❤️', text: 'Vielleicht erinnerst du dich an diesen Moment…', img: 'hinweis04.jpg' },
-      { date: '2026-05-21', title: 'Mai ❤️', text: 'Ein weiterer kleiner Hinweis für dich…', img: 'hinweis05.jpg' },
-      { date: '2026-06-21', title: 'Juni ❤️', text: 'Halbzeit – und immer noch nur für dich…', img: 'hinweis06.jpg' },
-      { date: '2026-07-21', title: 'Juli ❤️', text: 'Der Sommer bringt neue Erinnerungen…', img: 'hinweis07.jpg' },
-      { date: '2026-08-21', title: 'August ❤️', text: 'Ein warmer Hinweis für einen warmen Monat…', img: 'hinweis08.jpg' },
-      { date: '2026-09-21', title: 'September ❤️', text: 'Der Herbst kommt langsam näher…', img: 'hinweis09.jpg' },
-      { date: '2026-10-21', title: 'Oktober ❤️', text: 'Ein geheimnisvoller Hinweis…', img: 'hinweis10.jpg' },
-      { date: '2026-11-21', title: 'November ❤️', text: 'Fast am Ziel…', img: 'hinweis11.jpg' },
-      { date: '2026-12-24', title: '24. Dezember 🎄❤️', text: 'Der letzte Hinweis – und vielleicht der schönste…', img: 'hinweis12.jpg' }
-    ];
+  /*************** ZUFALLSDATEN ***************/
+  function getRandomDay(year, month) {
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    return Math.floor(Math.random() * (daysInMonth - 5)) + 3; 
+  }
 
-    const container = document.getElementById('hints-container');
-    const now = new Date();
+  function generateHintDates() {
+    const stored = localStorage.getItem("hintDates");
+    if (stored) return JSON.parse(stored);
 
-    /* ================== HINWEISE ANZEIGEN ================== */
-    hints.forEach((hint, index) => {
-      if (TEST_MODE || now >= new Date(hint.date)) {
-        const div = document.createElement('div');
-        div.className = 'hint fade-in';
-        div.style.animationDelay = `${(index + 1) * 2.5}s`;
+    const dates = [];
+    dates.push("2026-01-21"); // erster Hinweis fix
 
-        div.innerHTML = `
-          <h2>${hint.title}</h2>
-          <p>${hint.text}</p>
-          <img src="${hint.img}">
-        `;
-        container.appendChild(div);
-      }
-    });
+    for (let m = 1; m < 12; m++) {
+      const day = getRandomDay(2026, m);
+      const date = new Date(2026, m, day);
+      dates.push(date.toISOString().split("T")[0]);
+    }
 
-    /* ================== COUNTDOWN + TEXT ================== */
-    const nextHint = hints.find(h => now < new Date(h.date));
+    localStorage.setItem("hintDates", JSON.stringify(dates));
+    return dates;
+  }
 
-    if (nextHint) {
-      const countdown = document.createElement('div');
-      countdown.className = 'countdown';
+  const hintDates = generateHintDates();
 
-      const randomText =
-        waitingTexts[Math.floor(Math.random() * waitingTexts.length)];
+  /*************** HINWEISE ***************/
+  const hints = [
+    { title: 'Januar ❤️', text: 'Hier kommt dein erster Hinweis…', img: 'hinweis01.png' },
+    { title: 'Februar ❤️', text: 'Der zweite kleine Hinweis wartet auf dich…', img: 'hinweis02.png' },
+    { title: 'März ❤️', text: 'Ein neuer Monat, ein neuer Hinweis…', img: 'hinweis03.png' },
+    { title: 'April ❤️', text: 'Vielleicht erinnerst du dich an diesen Moment…', img: 'hinweis04.png' },
+    { title: 'Mai ❤️', text: 'Ein weiterer kleiner Hinweis für dich…', img: 'hinweis05.png' },
+    { title: 'Juni ❤️', text: 'Halbzeit – und immer noch nur für dich…', img: 'hinweis06.png' },
+    { title: 'Juli ❤️', text: 'Der Sommer bringt neue Erinnerungen…', img: 'hinweis07.png' },
+    { title: 'August ❤️', text: 'Ein warmer Hinweis für einen warmen Monat…', img: 'hinweis08.png' },
+    { title: 'September ❤️', text: 'Der Herbst kommt langsam näher…', img: 'hinweis09.png' },
+    { title: 'Oktober ❤️', text: 'Ein geheimnisvoller Hinweis…', img: 'hinweis10.png' },
+    { title: 'November ❤️', text: 'Fast am Ziel…', img: 'hinweis11.png' },
+    { title: '24. Dezember 🎄❤️', text: 'Der letzte Hinweis – und vielleicht der schönste…', img: 'hinweis12.png' }
+  ];
 
-      countdown.innerHTML = `
-        <p style="margin-bottom: 15px;">${randomText}</p>
-        <p>Nächster Hinweis in<br><strong id="cd"></strong></p>
+  const container = document.getElementById("hints-container");
+  const now = new Date();
+
+  hints.forEach((hint, i) => {
+    const releaseDate = new Date(hintDates[i]);
+    if (TEST_MODE || now >= releaseDate) {
+      const div = document.createElement("div");
+      div.className = "hint fade-in";
+      div.style.animationDelay = `${(i + 1) * 2.5}s`;
+
+      div.innerHTML = `
+        <h2>${hint.title}</h2>
+        <p>${hint.text}</p>
+        <img src="${hint.img}">
       `;
+      container.appendChild(div);
+    }
+  });
 
-      container.appendChild(countdown);
+  if (!TEST_MODE) {
+    const nextIndex = hintDates.findIndex(d => now < new Date(d));
+    if (nextIndex !== -1) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "countdown-wrapper";
+
+      const text = document.createElement("div");
+      text.className = "waiting-text";
+      text.innerText = waitingTexts[Math.floor(Math.random() * waitingTexts.length)];
+
+      const countdown = document.createElement("div");
+
+      wrapper.appendChild(text);
+      wrapper.appendChild(countdown);
+      container.appendChild(wrapper);
 
       function updateCountdown() {
-        const diff = new Date(nextHint.date) - new Date();
+        const diff = new Date(hintDates[nextIndex]) - new Date();
         if (diff <= 0) location.reload();
 
-        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-        const minutes = Math.floor((diff / (1000 * 60)) % 60);
-        const seconds = Math.floor((diff / 1000) % 60);
+        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const m = Math.floor((diff / (1000 * 60)) % 60);
+        const s = Math.floor((diff / 1000) % 60);
 
-        document.getElementById('cd').innerHTML =
-          `${days} Tagen, ${hours} Stunden, ${minutes} Minuten, ${seconds} Sekunden ❤️`;
+        countdown.innerHTML =
+          `Nächster Hinweis in <strong>${d}</strong> Tagen, 
+           <strong>${h}</strong> Stunden, 
+           <strong>${m}</strong> Minuten, 
+           <strong>${s}</strong> Sekunden ❤️`;
       }
 
-      setInterval(updateCountdown, 1000);
       updateCountdown();
+      setInterval(updateCountdown, 1000);
     }
-  </script>
+  }
+</script>
 
-  <!-- ===== MUSIK ===== -->
-  <audio id="bg-music" loop>
-    <source src="Send Me On My Way.mp3" type="audio/mpeg">
-  </audio>
+<!-- ===== MUSIK ===== -->
+<audio id="bg-music" loop>
+  <source src="Send Me On My Way.mp3" type="audio/mpeg">
+</audio>
 
-  <script>
-    const music = document.getElementById('bg-music');
-    let musicStarted = false;
-
-    function startMusic() {
-      if (!musicStarted) {
-        music.play();
-        musicStarted = true;
-        document.removeEventListener('click', startMusic);
-      }
+<script>
+  let started = false;
+  document.addEventListener("click", () => {
+    if (!started) {
+      document.getElementById("bg-music").play();
+      started = true;
     }
-
-    document.addEventListener('click', startMusic);
-  </script>
+  });
+</script>
 
 </body>
 </html>
+
