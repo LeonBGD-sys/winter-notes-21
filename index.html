@@ -4,80 +4,80 @@
 <meta charset="UTF-8">
 <title>Für dich ❤️</title>
 <style>
-  body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #000;
-    color: #fff;
-    text-align: center;
-  }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #000;
+  color: #fff;
+  text-align: center;
+}
 
-  /* ===== HERO ===== */
-  .hero-container {
-    position: relative;
-    height: 100vh;
-    overflow: hidden;
-  }
+/* ===== HERO ===== */
+.hero-container {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+}
 
-  #slideshow {
-    position: absolute;
-    inset: 0;
-    background-size: contain;       /* Ganze Bilder sichtbar, keine Abschneidung */
-    background-position: center;
-    background-repeat: no-repeat;
-    background-color: #000;
-    transition: opacity 1.5s ease-in-out;
-    z-index: -1;
-  }
+#slideshow {
+  position: absolute;
+  inset: 0;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #000;
+  transition: opacity 1.5s ease-in-out;
+  z-index: -1;
+}
 
-  .hero-text {
-    position: absolute;
-    top: 20px;                     /* Text oben statt mittig */
-    left: 50%;
-    transform: translateX(-50%);
-    text-shadow: 2px 2px 6px #000;
-    z-index: 2;
-  }
+.hero-text {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-shadow: 2px 2px 6px #000;
+  z-index: 2;
+}
 
-  .hero-text h1 {
-    font-size: 2.8em;
-    margin: 0;
-  }
+.hero-text h1 {
+  font-size: 2.8em;
+  margin: 0;
+}
 
-  .hero-text p {
-    font-size: 1.2em;
-    margin-top: 5px;
-  }
+.hero-text p {
+  font-size: 1.2em;
+  margin-top: 5px;
+}
 
-  #hero-countdown {
-    margin-top: 10px;
-    font-size: 1.1em;
-    font-style: italic;
-    opacity: 0.9;
-  }
+#hero-countdown {
+  margin-top: 10px;
+  font-size: 1.1em;
+  font-style: italic;
+  opacity: 0.9;
+}
 
-  /* ===== HINWEISE ===== */
-  .hint {
-    margin: 60px auto;
-    max-width: 800px;
-    padding: 0 20px;
-    opacity: 0;
-    transform: translateY(30px);
-    animation: fadeInUp 1.2s ease forwards;
-  }
+/* ===== HINWEISE ===== */
+.hint {
+  margin: 60px auto;
+  max-width: 800px;
+  padding: 0 20px;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeInUp 1.2s ease forwards;
+}
 
-  .hint img {
-    width: 100%;
-    border-radius: 12px;
-    margin-top: 15px;
-  }
+.hint img {
+  width: 100%;
+  border-radius: 12px;
+  margin-top: 15px;
+}
 
-  @keyframes fadeInUp {
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
+}
 </style>
 </head>
 <body>
@@ -93,6 +93,11 @@
 </div>
 
 <div id="hints-container"></div>
+
+<!-- ===== MUSIK ===== -->
+<audio id="bg-music" loop>
+  <source src="Send Me On My Way.mp3" type="audio/mpeg">
+</audio>
 
 <script>
 /*************** MODUS ***************/
@@ -212,11 +217,6 @@ setInterval(() => {
 }, 4000);
 
 /*************** MUSIK ***************/
-<audio id="bg-music" loop>
-  <source src="Send Me On My Way.mp3" type="audio/mpeg">
-</audio>
-
-<script>
 let started = false;
 document.addEventListener("click", () => {
   if(!started){
