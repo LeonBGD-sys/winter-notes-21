@@ -19,15 +19,20 @@ body {
   overflow: hidden;
 }
 
-#slideshow {
+.hero-slide {
   position: absolute;
   inset: 0;
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
   background-color: #000;
+  opacity: 0;
   transition: opacity 1.5s ease-in-out;
   z-index: -1;
+}
+
+.hero-slide.active {
+  opacity: 1;
 }
 
 .hero-text {
@@ -83,8 +88,7 @@ body {
 <body>
 
 <!-- ===== HERO ===== -->
-<div class="hero-container">
-  <div id="slideshow"></div>
+<div class="hero-container" id="hero-container">
   <div class="hero-text">
     <h1>Für dich ❤️</h1>
     <p>Jeden Monat ein kleiner Hinweis…</p>
@@ -101,7 +105,7 @@ body {
 
 <script>
 /*************** MODUS ***************/
-const TEST_MODE = false; // true = Testmodus, false = echtes Erlebnis
+const TEST_MODE = false;
 
 /*************** WARTE-TEXTE ***************/
 const waitingTexts = [
@@ -117,7 +121,7 @@ const waitingTexts = [
   "Noch ist es nicht soweit…"
 ];
 
-/*************** ZUFALLSDATEN ***************/
+/*************** ZUFALLSDATEN HINWEISE ***************/
 function randomDay(year, month) {
   const days = new Date(year, month + 1, 0).getDate();
   return Math.floor(Math.random() * (days - 6)) + 3;
@@ -171,14 +175,15 @@ if (!TEST_MODE) {
   const nextIndex = hintDates.findIndex(d => now < new Date(d));
   if (nextIndex !== -1) {
     const heroCountdown = document.getElementById("hero-countdown");
+    // zufälligen Text einmal pro Seitenaufruf wählen
+    const randomText = waitingTexts[Math.floor(Math.random() * waitingTexts.length)];
+
     function updateCountdown() {
       const diff = new Date(hintDates[nextIndex]) - new Date();
       if(diff <= 0) location.reload();
       const days = Math.floor(diff / (1000*60*60*24));
       const hours = Math.floor((diff / (1000*60*60)) % 24);
       const minutes = Math.floor((diff / (1000*60)) % 60);
-
-      const randomText = waitingTexts[Math.floor(Math.random() * waitingTexts.length)];
       heroCountdown.innerHTML = `
         ${randomText}<br>
         <strong>Nächster Hinweis in ${days} Tagen, ${hours} Stunden, ${minutes} Minuten ❤️</strong>
@@ -190,31 +195,31 @@ if (!TEST_MODE) {
 }
 
 /*************** HINTERGRUND-SLIDESHOW ***************/
-let backgrounds = [
-  "Hintergrund01.png","Hintergrund02.png","Hintergrund03.png",
-  "Hintergrund04.png","Hintergrund05.png","Hintergrund06.png",
-  "Hintergrund07.png","Hintergrund08.png","Hintergrund09.png",
-  "Hintergrund10.png","Hintergrund11.png","Hintergrund12.png",
-  "Hintergrund13.png","Hintergrund14.png","Hintergrund15.png",
-  "Hintergrund16.png","Hintergrund17.png","Hintergrund18.png",
-  "Hintergrund19.png","Hintergrund20.png"
-];
-
-// Zufällige Reihenfolge
+let backgrounds = [];
+for(let i=1;i<=20;i++){
+  backgrounds.push(`Hintergrund${i.toString().padStart(2,'0')}.png`);
+}
 backgrounds = backgrounds.sort(() => Math.random() - 0.5);
 
-let bgIndex = 0;
-const slide = document.getElementById("slideshow");
-slide.style.backgroundImage = `url(${backgrounds[bgIndex]})`;
+const heroContainer = document.getElementById("hero-container");
+
+// erstelle divs für alle slides
+backgrounds.forEach(bg => {
+  const div = document.createElement("div");
+  div.className = "hero-slide";
+  div.style.backgroundImage = `url(${bg})`;
+  heroContainer.appendChild(div);
+});
+
+let slides = document.querySelectorAll(".hero-slide");
+let current = 0;
+slides[current].classList.add("active");
 
 setInterval(() => {
-  slide.style.opacity = 0;
-  setTimeout(() => {
-    bgIndex = (bgIndex + 1) % backgrounds.length;
-    slide.style.backgroundImage = `url(${backgrounds[bgIndex]})`;
-    slide.style.opacity = 1;
-  }, 1500);
-}, 4000);
+  slides[current].classList.remove("active");
+  current = (current+1) % slides.length;
+  slides[current].classList.add("active");
+}, 8000); // 8 Sekunden pro Bild
 
 /*************** MUSIK ***************/
 let started = false;
