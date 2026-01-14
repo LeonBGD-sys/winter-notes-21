@@ -10,6 +10,8 @@ body {
   background: #000;
   color: #fff;
   text-align: center;
+  overflow-x: hidden;
+  position: relative;
 }
 
 /* ===== HERO ===== */
@@ -83,12 +85,21 @@ body {
     transform: translateY(0);
   }
 }
+
+/* ===== CANVAS FÜR PARTIKEL ===== */
+#season-canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1; /* hinter Hero-Text, über Slides */
+}
 </style>
 </head>
 <body>
 
 <!-- ===== HERO ===== -->
 <div class="hero-container" id="hero-container">
+  <canvas id="season-canvas"></canvas>
   <div class="hero-text">
     <h1>Für dich ❤️</h1>
     <p>Jeden Monat ein kleiner Hinweis…</p>
@@ -175,7 +186,6 @@ if (!TEST_MODE) {
   const nextIndex = hintDates.findIndex(d => now < new Date(d));
   if (nextIndex !== -1) {
     const heroCountdown = document.getElementById("hero-countdown");
-    // zufälligen Text einmal pro Seitenaufruf wählen
     const randomText = waitingTexts[Math.floor(Math.random() * waitingTexts.length)];
 
     function updateCountdown() {
@@ -194,7 +204,7 @@ if (!TEST_MODE) {
   }
 }
 
-/*************** HINTERGRUND-SLIDESHOW ***************/
+/*************** HERO SLIDESHOW ***************/
 let backgrounds = [];
 for(let i=1;i<=20;i++){
   backgrounds.push(`Hintergrund${i.toString().padStart(2,'0')}.png`);
@@ -203,7 +213,6 @@ backgrounds = backgrounds.sort(() => Math.random() - 0.5);
 
 const heroContainer = document.getElementById("hero-container");
 
-// erstelle divs für alle slides
 backgrounds.forEach(bg => {
   const div = document.createElement("div");
   div.className = "hero-slide";
@@ -219,7 +228,7 @@ setInterval(() => {
   slides[current].classList.remove("active");
   current = (current+1) % slides.length;
   slides[current].classList.add("active");
-}, 8000); // 8 Sekunden pro Bild
+}, 8000);
 
 /*************** MUSIK ***************/
 let started = false;
@@ -229,7 +238,71 @@ document.addEventListener("click", () => {
     started = true;
   }
 });
-</script>
 
+/*************** SAISONALE HINTERGRUND-PARTIKEL ***************/
+const canvas = document.getElementById("season-canvas");
+const ctx = canvas.getContext("2d");
+let particles = [];
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+// Saison erkennen
+function getSeason() {
+  const month = now.getMonth(); // 0-11
+  const day = now.getDate();
+  if(month === 0 || month === 1 || month === 2 || (month===3 && day<=15)) return 'winter';
+  if((month===3 && day>15) || month===4 || month===5) return 'spring';
+  if(month>=5 && month<=8) return 'summer';
+  return 'autumn';
+}
+
+const season = getSeason();
+
+// Partikel-Setup
+function createParticle() {
+  let x = Math.random() * canvas.width;
+  let y = Math.random() * canvas.height;
+  let size = Math.random() * 4 + 2;
+  let speedY = Math.random() * 1 + 0.3;
+  let speedX = (Math.random()-0.5)*0.5;
+  let color = '#fff';
+  let type = season;
+
+  if(type==='spring') color = `rgba(255,192,203,${Math.random()})`; // rosa Blüten
+  if(type==='summer') color = `rgba(255,255,200,${Math.random()})`; // sonnig
+  if(type==='autumn') color = `rgba(${150+Math.random()*105}, ${50+Math.random()*50}, 0, ${Math.random()})`; // Laub
+
+  return {x, y, size, speedX, speedY, color, type};
+}
+
+// initial 100 Partikel
+for(let i=0;i<100;i++) particles.push(createParticle());
+
+function updateParticles() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  particles.forEach(p => {
+    p.x += p.speedX;
+    p.y += p.speedY;
+
+    // Reset oben/unten
+    if(p.type==='winter' && p.y>canvas.height) { p.y=0; p.x=Math.random()*canvas.width; }
+    if(p.type==='spring' && p.y<0) { p.y=canvas.height; p.x=Math.random()*canvas.width; }
+    if(p.type==='autumn' && p.y>canvas.height) { p.y=0; p.x=Math.random()*canvas.width; }
+
+    ctx.beginPath();
+    if(p.type==='summer') ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+    else ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+    ctx.fillStyle = p.color;
+    ctx.fill();
+  });
+  requestAnimationFrame(updateParticles);
+}
+updateParticles();
+</script>
 </body>
 </html>
