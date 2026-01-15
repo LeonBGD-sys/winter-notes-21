@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Für dich ❤️</title>
+
 <style>
 body {
   margin: 0;
@@ -11,7 +12,14 @@ body {
   color: #fff;
   text-align: center;
   overflow-x: hidden;
-  position: relative;
+}
+
+/* ===== SAISON CANVAS (GANZE SEITE) ===== */
+#season-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
 }
 
 /* ===== HERO ===== */
@@ -30,7 +38,7 @@ body {
   background-color: #000;
   opacity: 0;
   transition: opacity 1.5s ease-in-out;
-  z-index: -1;
+  z-index: 0;
 }
 
 .hero-slide.active {
@@ -43,7 +51,7 @@ body {
   left: 50%;
   transform: translateX(-50%);
   text-shadow: 2px 2px 6px #000;
-  z-index: 2;
+  z-index: 3;
 }
 
 .hero-text h1 {
@@ -65,6 +73,8 @@ body {
 
 /* ===== HINWEISE ===== */
 .hint {
+  position: relative;
+  z-index: 3;
   margin: 60px auto;
   max-width: 800px;
   padding: 0 20px;
@@ -85,23 +95,18 @@ body {
     transform: translateY(0);
   }
 }
-
-/* ===== CANVAS FÜR PARTIKEL ===== */
-#season-canvas {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1; /* hinter Hero-Text, über Slides */
-}
 </style>
 </head>
+
 <body>
+
+<!-- ===== SAISON CANVAS ===== -->
+<canvas id="season-canvas"></canvas>
 
 <!-- ===== HERO ===== -->
 <div class="hero-container" id="hero-container">
-  <canvas id="season-canvas"></canvas>
   <div class="hero-text">
-    <h1> ❤️ Für dich ❤️</h1>
+    <h1>Für dich ❤️</h1>
     <p>Jeden Monat ein kleiner Hinweis…</p>
     <div id="hero-countdown"></div>
   </div>
@@ -115,10 +120,10 @@ body {
 </audio>
 
 <script>
-/*************** MODUS ***************/
+/**************** MODUS ****************/
 const TEST_MODE = true;
 
-/*************** WARTE-TEXTE ***************/
+/**************** WARTE-TEXTE ****************/
 const waitingTexts = [
   "Tut mir leid… du musst dich noch etwas gedulden ❤️",
   "Haha, nice try 😌",
@@ -132,7 +137,7 @@ const waitingTexts = [
   "Noch ist es nicht soweit…"
 ];
 
-/*************** ZUFALLSDATEN HINWEISE ***************/
+/**************** ZUFALLSDATEN HINWEISE ****************/
 function randomDay(year, month) {
   const days = new Date(year, month + 1, 0).getDate();
   return Math.floor(Math.random() * (days - 6)) + 3;
@@ -152,7 +157,7 @@ function generateDates() {
 }
 const hintDates = generateDates();
 
-/*************** HINWEISE ***************/
+/**************** HINWEISE ****************/
 const hints = [
   { title: "Januar ❤️", text: "Hier kommt dein erster Hinweis…", img: "hinweis01.png" },
   { title: "Februar ❤️", text: "Der zweite kleine Hinweis wartet…", img: "hinweis02.png" },
@@ -175,13 +180,13 @@ hints.forEach((hint, i) => {
   if (TEST_MODE || now >= new Date(hintDates[i])) {
     const div = document.createElement("div");
     div.className = "hint";
-    div.style.animationDelay = `${(i+1)*2.5}s`;
+    div.style.animationDelay = `${(i+1)*0.4}s`;
     div.innerHTML = `<h2>${hint.title}</h2><p>${hint.text}</p><img src="${hint.img}">`;
     container.appendChild(div);
   }
 });
 
-/*************** HERO COUNTDOWN ***************/
+/**************** HERO COUNTDOWN ****************/
 if (!TEST_MODE) {
   const nextIndex = hintDates.findIndex(d => now < new Date(d));
   if (nextIndex !== -1) {
@@ -204,20 +209,19 @@ if (!TEST_MODE) {
   }
 }
 
-/*************** HERO SLIDESHOW ***************/
+/**************** HERO SLIDESHOW ****************/
 let backgrounds = [];
 for(let i=1;i<=20;i++){
   backgrounds.push(`Hintergrund${i.toString().padStart(2,'0')}.png`);
 }
-backgrounds = backgrounds.sort(() => Math.random() - 0.5);
+backgrounds.sort(() => Math.random() - 0.5);
 
-const heroContainer = document.getElementById("hero-container");
-
+const hero = document.getElementById("hero-container");
 backgrounds.forEach(bg => {
-  const div = document.createElement("div");
-  div.className = "hero-slide";
-  div.style.backgroundImage = `url(${bg})`;
-  heroContainer.appendChild(div);
+  const d = document.createElement("div");
+  d.className = "hero-slide";
+  d.style.backgroundImage = `url(${bg})`;
+  hero.appendChild(d);
 });
 
 let slides = document.querySelectorAll(".hero-slide");
@@ -230,7 +234,7 @@ setInterval(() => {
   slides[current].classList.add("active");
 }, 8000);
 
-/*************** MUSIK ***************/
+/**************** MUSIK ****************/
 let started = false;
 document.addEventListener("click", () => {
   if(!started){
@@ -239,70 +243,73 @@ document.addEventListener("click", () => {
   }
 });
 
-/*************** SAISONALE HINTERGRUND-PARTIKEL ***************/
+/**************** SAISONALE + MAGISCHE PARTIKEL ****************/
 const canvas = document.getElementById("season-canvas");
 const ctx = canvas.getContext("2d");
-let particles = [];
 
 function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  canvas.width = innerWidth;
+  canvas.height = innerHeight;
 }
-window.addEventListener('resize', resizeCanvas);
+window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
 
-// Saison erkennen
-function getSeason() {
-  const month = now.getMonth(); // 0-11
-  const day = now.getDate();
-  if(month === 0 || month === 1 || month === 2 || (month===3 && day<=15)) return 'winter';
-  if((month===3 && day>15) || month===4 || month===5) return 'spring';
-  if(month>=5 && month<=8) return 'summer';
-  return 'autumn';
+function isBirthday(){
+  return now.getDate()===10 && now.getMonth()===3;
+}
+
+function getSeason(){
+  const m = now.getMonth(), d = now.getDate();
+  if(m<=2 || (m===3 && d<=15)) return "winter";
+  if(m<=5) return "spring";
+  if(m<=8) return "summer";
+  return "autumn";
 }
 
 const season = getSeason();
+const hour = now.getHours();
+const mood = hour<6||hour>=22 ? 0.5 : hour<10 ? 0.8 : hour<18 ? 1 : 0.7;
 
-// Partikel-Setup
-function createParticle() {
-  let x = Math.random() * canvas.width;
-  let y = Math.random() * canvas.height;
-  let size = Math.random() * 4 + 2;
-  let speedY = Math.random() * 1 + 0.3;
-  let speedX = (Math.random()-0.5)*0.5;
-  let color = '#fff';
-  let type = season;
+let particles=[];
+const amount = isBirthday()?180:120;
 
-  if(type==='spring') color = `rgba(255,192,203,${Math.random()})`; // rosa Blüten
-  if(type==='summer') color = `rgba(255,255,200,${Math.random()})`; // sonnig
-  if(type==='autumn') color = `rgba(${150+Math.random()*105}, ${50+Math.random()*50}, 0, ${Math.random()})`; // Laub
+function createParticle(){
+  let color;
+  if(isBirthday()) color=`rgba(255,80,120,${Math.random()})`;
+  else if(season==="winter") color=`rgba(255,255,255,${0.8*mood})`;
+  else if(season==="spring") color=`rgba(255,180,200,${0.6*mood})`;
+  else if(season==="summer") color=`rgba(255,255,200,${0.5*mood})`;
+  else color=`rgba(200,120,40,${0.7*mood})`;
 
-  return {x, y, size, speedX, speedY, color, type};
+  return {
+    x:Math.random()*canvas.width,
+    y:Math.random()*canvas.height,
+    size:Math.random()*4+2,
+    speedY:Math.random()*1.2+0.3,
+    speedX:(Math.random()-0.5)*0.6,
+    color
+  };
 }
+for(let i=0;i<amount;i++) particles.push(createParticle());
 
-// initial 100 Partikel
-for(let i=0;i<100;i++) particles.push(createParticle());
+let mouseX=0;
+document.addEventListener("mousemove",e=>mouseX=e.clientX);
 
-function updateParticles() {
+function animate(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  particles.forEach(p => {
-    p.x += p.speedX;
-    p.y += p.speedY;
-
-    // Reset oben/unten
-    if(p.type==='winter' && p.y>canvas.height) { p.y=0; p.x=Math.random()*canvas.width; }
-    if(p.type==='spring' && p.y<0) { p.y=canvas.height; p.x=Math.random()*canvas.width; }
-    if(p.type==='autumn' && p.y>canvas.height) { p.y=0; p.x=Math.random()*canvas.width; }
-
+  particles.forEach(p=>{
+    p.y+=p.speedY;
+    p.x+=p.speedX+(mouseX-canvas.width/2)*0.00005;
+    if(p.y>canvas.height){p.y=0;p.x=Math.random()*canvas.width;}
     ctx.beginPath();
-    if(p.type==='summer') ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
-    else ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
-    ctx.fillStyle = p.color;
+    ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+    ctx.fillStyle=p.color;
     ctx.fill();
   });
-  requestAnimationFrame(updateParticles);
+  requestAnimationFrame(animate);
 }
-updateParticles();
+animate();
 </script>
+
 </body>
 </html>
