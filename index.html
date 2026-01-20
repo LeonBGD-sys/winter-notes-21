@@ -18,67 +18,40 @@ body {
 #password-overlay {
   position: fixed;
   inset: 0;
-  background: radial-gradient(circle at top, #111, #000);
-  display: flex;
-  align-items: center;
+  background: rgba(0,0,0,0.95);
+  display: none;
   justify-content: center;
+  align-items: center;
   z-index: 9999;
 }
 
 #password-box {
-  background: rgba(255,255,255,0.08);
-  border: 2px solid #ffb6c1;
-  border-radius: 16px;
-  padding: 30px 35px;
-  box-shadow: 0 0 30px rgba(255,182,193,0.25);
-  max-width: 320px;
-  width: 90%;
-}
-
-#password-box h2 {
-  margin-top: 0;
-  color: #ffb6c1;
+  background: #111;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 0 20px #ff4d6d;
 }
 
 #password-box input {
-  width: 100%;
-  padding: 12px;
-  border-radius: 10px;
+  padding: 10px;
+  border-radius: 6px;
   border: none;
   font-size: 1em;
-  margin-top: 10px;
-  outline: none;
 }
 
 #password-box button {
-  margin-top: 15px;
-  padding: 12px 20px;
-  border-radius: 10px;
+  margin-top: 10px;
+  padding: 10px 20px;
   border: none;
-  font-size: 1em;
+  background: #ff4d6d;
+  color: #fff;
+  border-radius: 6px;
   cursor: pointer;
-  background: #ffb6c1;
-  color: #000;
-  transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
-#password-box button:hover {
-  transform: scale(1.05);
-  opacity: 0.9;
 }
 
 #password-error {
-  color: #ff7b9c;
   margin-top: 10px;
-  min-height: 1.2em;
-}
-
-/* ===== SEASON CANVAS ===== */
-#season-canvas {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
+  color: #ff6b6b;
 }
 
 /* ===== HERO ===== */
@@ -97,12 +70,10 @@ body {
   background-color: #000;
   opacity: 0;
   transition: opacity 1.5s ease-in-out;
-  z-index: 0;
+  z-index: -1;
 }
 
-.hero-slide.active {
-  opacity: 1;
-}
+.hero-slide.active { opacity: 1; }
 
 .hero-text {
   position: absolute;
@@ -110,38 +81,13 @@ body {
   left: 50%;
   transform: translateX(-50%);
   text-shadow: 2px 2px 6px #000;
-  z-index: 3;
+  z-index: 2;
 }
 
-.hero-text h1 {
-  font-size: 2.8em;
-  margin: 0;
-}
+#hero-countdown { margin-top: 10px; }
 
-.hero-text p {
-  font-size: 1.2em;
-  margin-top: 5px;
-}
-
-#hero-countdown {
-  margin-top: 10px;
-  font-size: 1.1em;
-  font-style: italic;
-  opacity: 0.9;
-}
-
-#anniversary-text {
-  margin-top: 12px;
-  font-size: 1.5em;
-  color: #ffb6c1;
-  font-weight: bold;
-  animation: fadeInUp 2s ease forwards;
-}
-
-/* ===== HINTS ===== */
+/* ===== HINWEISE ===== */
 .hint {
-  position: relative;
-  z-index: 3;
   margin: 60px auto;
   max-width: 800px;
   padding: 0 20px;
@@ -156,48 +102,52 @@ body {
   margin-top: 15px;
 }
 
-.envelope {
-  background: rgba(255,255,255,0.08);
-  border: 2px dashed #ffb6c1;
-  border-radius: 14px;
-  padding: 30px;
-  cursor: pointer;
-  transition: transform 0.3s ease, background 0.3s ease;
-}
-
-.envelope:hover {
-  transform: scale(1.05);
-  background: rgba(255,255,255,0.15);
-}
-
-.envelope span {
-  font-size: 1.4em;
-  color: #ffb6c1;
-}
-
-/* ===== ANIMATIONS ===== */
 @keyframes fadeInUp {
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== UMSCHLAG ===== */
+.envelope {
+  width: 300px;
+  margin: 40px auto;
+  padding: 20px;
+  border: 2px solid #ff4d6d;
+  border-radius: 12px;
+  cursor: pointer;
+  background: #111;
+}
+
+.envelope:hover { background:#222; }
+
+/* ===== PARTIKEL ===== */
+.particle {
+  position: fixed;
+  top: -10px;
+  pointer-events: none;
+  animation: fall linear infinite;
+}
+
+@keyframes fall {
+  to { transform: translateY(110vh); opacity: 0; }
 }
 </style>
 </head>
 
 <body>
 
-<!-- ===== PASSWORT SPERRE ===== -->
+<!-- PASSWORT -->
 <div id="password-overlay">
   <div id="password-box">
-    <h2>🔒 Geschützte Seite</h2>
-    <p>Bitte gib das Passwort ein ❤️</p>
-    <input type="password" id="password-input" placeholder="Passwort">
+    <h2>🔒 Geschützt</h2>
+    <input type="password" id="password-input" placeholder="Passwort eingeben">
+    <br>
     <button onclick="checkPassword()">Öffnen</button>
     <div id="password-error"></div>
   </div>
 </div>
 
-<canvas id="season-canvas"></canvas>
-
-<div class="hero-container" id="hero-container" style="display:none;">
+<!-- HERO -->
+<div class="hero-container" id="hero-container">
   <div class="hero-text">
     <h1>Für dich ❤️</h1>
     <p>Jeden Monat ein kleiner Hinweis…</p>
@@ -206,59 +156,79 @@ body {
   </div>
 </div>
 
-<div id="hints-container" style="display:none;"></div>
+<div id="hints-container"></div>
 
 <audio id="bg-music" loop>
   <source src="Send Me On My Way.mp3" type="audio/mpeg">
 </audio>
 
 <script>
-
+/*************** MODUS ***************/
+const TEST_MODE = false;
 
 /*************** PASSWORT ***************/
 const PASSWORD = "21Stephie-Leon01";
 
+const overlay = document.getElementById("password-overlay");
+const hero = document.getElementById("hero-container");
+const hintsBox = document.getElementById("hints-container");
+
+hero.style.display = "none";
+hintsBox.style.display = "none";
+
 if (!TEST_MODE) {
-  // Live-Modus → keine Sperre
-  document.getElementById("password-overlay").style.display = "none";
-  document.getElementById("hero-container").style.display = "block";
-  document.getElementById("hints-container").style.display = "block";
+  overlay.style.display = "none";
+  hero.style.display = "block";
+  hintsBox.style.display = "block";
   startSite();
+} else {
+  overlay.style.display = "flex";
 }
 
 function checkPassword(){
-  if (!TEST_MODE) return; // Sicherheitshalber
-
+  if (!TEST_MODE) return;
   const input = document.getElementById("password-input").value;
-  const error = document.getElementById("password-error");
-
   if(input === PASSWORD){
-    document.getElementById("password-overlay").style.display = "none";
-    document.getElementById("hero-container").style.display = "block";
-    document.getElementById("hints-container").style.display = "block";
+    overlay.style.display = "none";
+    hero.style.display = "block";
+    hintsBox.style.display = "block";
     startSite();
   } else {
-    error.innerText = "❌ Falsches Passwort";
+    document.getElementById("password-error").innerText = "❌ Falsches Passwort";
   }
 }
 
-
-/*************** HAUPTLOGIK ***************/
+/*************** START DER SEITE ***************/
 function startSite(){
 
-const TEST_MODE = false;
-const ANNIVERSARY_DATE = "2026-01-21";
+/* WARTE TEXTE */
+const waitingTexts = [
+  "Geduld ist eine Tugend ❤️",
+  "Noch ein bisschen warten 😌",
+  "Fast… aber noch nicht 💕"
+];
 
-const now = new Date();
-const todayStr = now.toISOString().split("T")[0];
-const isAnniversary = todayStr === ANNIVERSARY_DATE;
-
-if(isAnniversary){
-  document.getElementById("anniversary-text").innerText =
-    "Alles Liebe zum Jahrestag ❤️";
+/* ZUFALLSDATEN */
+function randomDay(year, month) {
+  const days = new Date(year, month + 1, 0).getDate();
+  return Math.floor(Math.random() * (days - 6)) + 3;
 }
 
-/*************** HINWEISE ***************/
+function generateDates() {
+  const stored = localStorage.getItem("hintDates");
+  if (stored) return JSON.parse(stored);
+
+  const dates = ["2026-01-21"];
+  for (let m = 1; m < 12; m++) {
+    const d = randomDay(2026, m);
+    dates.push(new Date(2026, m, d).toISOString().split("T")[0]);
+  }
+  localStorage.setItem("hintDates", JSON.stringify(dates));
+  return dates;
+}
+const hintDates = generateDates();
+
+/* HINWEISE */
 const hints = [
   { title: "Januar ❤️", text: "Hier kommt dein erster Hinweis…", img: "hinweis01.png" },
   { title: "Februar ❤️", text: "Der zweite kleine Hinweis wartet…", img: "hinweis02.png" },
@@ -275,148 +245,125 @@ const hints = [
 ];
 
 const container = document.getElementById("hints-container");
+const now = new Date();
 
-hints.forEach((hint, i) => {
-  if (TEST_MODE || i === 0) {
-    const div = document.createElement("div");
-    div.className = "hint";
+/* ERSTER HINWEIS MIT UMSCHLAG */
+if (TEST_MODE || now >= new Date(hintDates[0])) {
+  const env = document.createElement("div");
+  env.className = "envelope";
+  env.innerText = "💌 Öffne den ersten Hinweis";
+  env.onclick = () => {
+    env.remove();
+    showHint(0);
+  };
+  container.appendChild(env);
+}
 
-    if(i === 0){
-      div.innerHTML = `
-        <div class="envelope" id="envelope">
-          <span>💌 Öffne den ersten Hinweis</span>
-        </div>
-      `;
-      container.appendChild(div);
+/* RESTLICHE HINWEISE */
+function showHint(i){
+  const hint = hints[i];
+  const div = document.createElement("div");
+  div.className = "hint";
+  div.innerHTML = `<h2>${hint.title}</h2><p>${hint.text}</p><img src="${hint.img}">`;
+  container.appendChild(div);
+}
 
-      div.querySelector("#envelope").addEventListener("click", () => {
-        div.innerHTML = `
-          <h2>${hint.title}</h2>
-          <p>${hint.text}</p>
-          <img src="${hint.img}">
-        `;
-      });
-    } else {
-      div.innerHTML = `<h2>${hint.title}</h2><p>${hint.text}</p><img src="${hint.img}">`;
-      container.appendChild(div);
-    }
-  }
+hints.forEach((hint,i)=>{
+  if(i===0) return;
+  if(TEST_MODE || now >= new Date(hintDates[i])) showHint(i);
 });
 
-/*************** SLIDESHOW ***************/
-let backgrounds = [];
-for(let i=1;i<=20;i++){
-  backgrounds.push(`Hintergrund${i.toString().padStart(2,'0')}.png`);
+/* COUNTDOWN */
+const nextIndex = hintDates.findIndex(d => now < new Date(d));
+if (nextIndex !== -1) {
+  const heroCountdown = document.getElementById("hero-countdown");
+  const randomText = waitingTexts[Math.floor(Math.random() * waitingTexts.length)];
+
+  function updateCountdown() {
+    const diff = new Date(hintDates[nextIndex]) - new Date();
+    if(diff <= 0) location.reload();
+    const days = Math.floor(diff / (1000*60*60*24));
+    heroCountdown.innerHTML = `${randomText}<br><strong>Nächster Hinweis in ${days} Tagen ❤️</strong>`;
+  }
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
 }
-backgrounds = backgrounds.sort(() => Math.random() - 0.5);
+
+/* SLIDESHOW */
+let backgrounds=[];
+for(let i=1;i<=20;i++) backgrounds.push(`Hintergrund${i.toString().padStart(2,'0')}.png`);
+backgrounds = backgrounds.sort(() => Math.random()-0.5);
 
 const heroContainer = document.getElementById("hero-container");
-
-backgrounds.forEach(bg => {
-  const div = document.createElement("div");
-  div.className = "hero-slide";
-  div.style.backgroundImage = `url(${bg})`;
+backgrounds.forEach(bg=>{
+  const div=document.createElement("div");
+  div.className="hero-slide";
+  div.style.backgroundImage=`url(${bg})`;
   heroContainer.appendChild(div);
 });
 
-let slides = document.querySelectorAll(".hero-slide");
-let current = 0;
+let slides=document.querySelectorAll(".hero-slide");
+let current=0;
 slides[current].classList.add("active");
 
-setInterval(() => {
+setInterval(()=>{
   slides[current].classList.remove("active");
-  current = (current+1) % slides.length;
+  current=(current+1)%slides.length;
   slides[current].classList.add("active");
-}, 8000);
+},8000);
 
-/*************** MUSIK ***************/
-let started = false;
-document.addEventListener("click", () => {
+/* MUSIK */
+let started=false;
+document.addEventListener("click",()=>{
   if(!started){
     document.getElementById("bg-music").play();
-    started = true;
+    started=true;
   }
 });
 
-/*************** SAISON EFFEKTE ***************/
-const canvas = document.getElementById("season-canvas");
-const ctx = canvas.getContext("2d");
-
-function resizeCanvas(){
-  canvas.width = innerWidth;
-  canvas.height = innerHeight;
-}
-window.addEventListener("resize", resizeCanvas);
-resizeCanvas();
-
-function isBirthday(){
-  return now.getDate()===10 && now.getMonth()===3;
+/* JAHRESTAG TEXT + HERZREGEN */
+const annText=document.getElementById("anniversary-text");
+if(now.getMonth()==0 && now.getDate()==21){
+  annText.innerHTML="<h2>❤️ Alles Liebe zum Jahrestag ❤️</h2>";
+  startParticles("heart");
 }
 
-function getSeason(){
-  if(isAnniversary || isBirthday()) return "hearts";
-  const m = now.getMonth(), d = now.getDate();
-  if(m<=2 || (m===3 && d<=15)) return "winter";
-  if(m<=5) return "spring";
-  if(m<=8) return "summer";
-  return "autumn";
+/* GEBURTSTAG 10.04. */
+if(now.getMonth()==3 && now.getDate()==10){
+  startParticles("heart");
 }
 
-const season = getSeason();
-let particles = [];
-const amount = 140;
+/* JAHRESZEITEN */
+function season(){
+  const m=now.getMonth()+1;
+  if(m<=3) startParticles("snow");
+  else if(m<=5) startParticles("flower");
+  else if(m<=9) startParticles("sun");
+  else startParticles("leaf");
+}
+season();
 
-function createParticle(){
-  let color;
-  if(season==="hearts") color="rgba(255,80,120,0.8)";
-  else if(season==="winter") color="rgba(255,255,255,0.8)";
-  else if(season==="spring") color="rgba(255,180,200,0.6)";
-  else if(season==="summer") color="rgba(255,255,200,0.5)";
-  else color="rgba(200,120,40,0.7)";
+/* PARTIKEL */
+function startParticles(type){
+  setInterval(()=>{
+    const p=document.createElement("div");
+    p.className="particle";
+    p.style.left=Math.random()*100+"vw";
+    p.style.animationDuration=5+Math.random()*5+"s";
 
-  return {
-    x:Math.random()*canvas.width,
-    y:Math.random()*canvas.height,
-    size:Math.random()*5+3,
-    speedY:Math.random()*1.2+0.5,
-    speedX:(Math.random()-0.5)*0.6,
-    color
-  };
+    if(type=="snow"){ p.innerText="❄️"; }
+    if(type=="flower"){ p.innerText="🌸"; }
+    if(type=="sun"){ p.innerText="✨"; }
+    if(type=="leaf"){ p.innerText="🍂"; }
+    if(type=="heart"){ p.innerText="❤️"; }
+
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),10000);
+  },300);
 }
 
-for(let i=0;i<amount;i++) particles.push(createParticle());
-
-function drawHeart(x,y,size){
-  ctx.beginPath();
-  ctx.moveTo(x, y);
-  ctx.bezierCurveTo(x-size/2, y-size/2, x-size, y+size/3, x, y+size);
-  ctx.bezierCurveTo(x+size, y+size/3, x+size/2, y-size/2, x, y);
-  ctx.fill();
 }
-
-function animate(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  particles.forEach(p=>{
-    p.y+=p.speedY;
-    p.x+=p.speedX;
-    if(p.y>canvas.height){p.y=0;p.x=Math.random()*canvas.width;}
-
-    ctx.fillStyle=p.color;
-    if(season==="hearts"){
-      drawHeart(p.x,p.y,p.size);
-    } else {
-      ctx.beginPath();
-      ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
-      ctx.fill();
-    }
-  });
-  requestAnimationFrame(animate);
-}
-animate();
-
-} // end startSite
 </script>
 
 </body>
 </html>
-
