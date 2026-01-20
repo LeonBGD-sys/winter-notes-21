@@ -105,31 +105,6 @@ body {
 @keyframes fadeInUp {
   to { opacity: 1; transform: translateY(0); }
 }
-
-/* ===== UMSCHLAG ===== */
-.envelope {
-  width: 300px;
-  margin: 40px auto;
-  padding: 20px;
-  border: 2px solid #ff4d6d;
-  border-radius: 12px;
-  cursor: pointer;
-  background: #111;
-}
-
-.envelope:hover { background:#222; }
-
-/* ===== PARTIKEL ===== */
-.particle {
-  position: fixed;
-  top: -10px;
-  pointer-events: none;
-  animation: fall linear infinite;
-}
-
-@keyframes fall {
-  to { transform: translateY(110vh); opacity: 0; }
-}
 </style>
 </head>
 
@@ -152,7 +127,6 @@ body {
     <h1>Für dich ❤️</h1>
     <p>Jeden Monat ein kleiner Hinweis…</p>
     <div id="hero-countdown"></div>
-    <div id="anniversary-text"></div>
   </div>
 </div>
 
@@ -164,7 +138,7 @@ body {
 
 <script>
 /*************** MODUS ***************/
-const TEST_MODE = false;
+const TEST_MODE = false;   // true = Test MIT Passwort | false = Live OHNE Passwort
 
 /*************** PASSWORT ***************/
 const PASSWORD = "21Stephie-Leon01";
@@ -173,39 +147,48 @@ const overlay = document.getElementById("password-overlay");
 const hero = document.getElementById("hero-container");
 const hintsBox = document.getElementById("hints-container");
 
-hero.style.display = "none";
-hintsBox.style.display = "none";
+/* STANDARD: alles sichtbar */
+overlay.style.display = "none";
+hero.style.display = "block";
+hintsBox.style.display = "block";
 
-if (!TEST_MODE) {
-  overlay.style.display = "none";
-  hero.style.display = "block";
-  hintsBox.style.display = "block";
-  startSite();
-} else {
+/* NUR IM TESTMODUS → PASSWORT */
+if (TEST_MODE) {
   overlay.style.display = "flex";
+  hero.style.display = "none";
+  hintsBox.style.display = "none";
 }
 
+/* Passwort prüfen */
 function checkPassword(){
   if (!TEST_MODE) return;
+
   const input = document.getElementById("password-input").value;
+  const error = document.getElementById("password-error");
+
   if(input === PASSWORD){
     overlay.style.display = "none";
     hero.style.display = "block";
     hintsBox.style.display = "block";
     startSite();
   } else {
-    document.getElementById("password-error").innerText = "❌ Falsches Passwort";
+    error.innerText = "❌ Falsches Passwort";
   }
 }
 
-/*************** START DER SEITE ***************/
+/* Start automatisch im Live-Modus */
+if (!TEST_MODE) {
+  startSite();
+}
+
+/*************** HAUPTSEITE ***************/
 function startSite(){
 
 /* WARTE TEXTE */
 const waitingTexts = [
-  "Geduld ist eine Tugend ❤️",
-  "Noch ein bisschen warten 😌",
-  "Fast… aber noch nicht 💕"
+  "Tut mir leid… du musst dich noch etwas gedulden ❤️",
+  "Geduld ist eine Tugend… 😉",
+  "Noch nicht… aber bald 🕰️"
 ];
 
 /* ZUFALLSDATEN */
@@ -247,30 +230,14 @@ const hints = [
 const container = document.getElementById("hints-container");
 const now = new Date();
 
-/* ERSTER HINWEIS MIT UMSCHLAG */
-if (TEST_MODE || now >= new Date(hintDates[0])) {
-  const env = document.createElement("div");
-  env.className = "envelope";
-  env.innerText = "💌 Öffne den ersten Hinweis";
-  env.onclick = () => {
-    env.remove();
-    showHint(0);
-  };
-  container.appendChild(env);
-}
-
-/* RESTLICHE HINWEISE */
-function showHint(i){
-  const hint = hints[i];
-  const div = document.createElement("div");
-  div.className = "hint";
-  div.innerHTML = `<h2>${hint.title}</h2><p>${hint.text}</p><img src="${hint.img}">`;
-  container.appendChild(div);
-}
-
-hints.forEach((hint,i)=>{
-  if(i===0) return;
-  if(TEST_MODE || now >= new Date(hintDates[i])) showHint(i);
+hints.forEach((hint, i) => {
+  if (TEST_MODE || now >= new Date(hintDates[i])) {
+    const div = document.createElement("div");
+    div.className = "hint";
+    div.style.animationDelay = `${(i+1)*2.5}s`;
+    div.innerHTML = `<h2>${hint.title}</h2><p>${hint.text}</p><img src="${hint.img}">`;
+    container.appendChild(div);
+  }
 });
 
 /* COUNTDOWN */
@@ -283,84 +250,46 @@ if (nextIndex !== -1) {
     const diff = new Date(hintDates[nextIndex]) - new Date();
     if(diff <= 0) location.reload();
     const days = Math.floor(diff / (1000*60*60*24));
-    heroCountdown.innerHTML = `${randomText}<br><strong>Nächster Hinweis in ${days} Tagen ❤️</strong>`;
+    heroCountdown.innerHTML =
+      `${randomText}<br><strong>Nächster Hinweis in ${days} Tagen ❤️</strong>`;
   }
   updateCountdown();
   setInterval(updateCountdown, 1000);
 }
 
 /* SLIDESHOW */
-let backgrounds=[];
-for(let i=1;i<=20;i++) backgrounds.push(`Hintergrund${i.toString().padStart(2,'0')}.png`);
-backgrounds = backgrounds.sort(() => Math.random()-0.5);
+let backgrounds = [];
+for(let i=1;i<=20;i++){
+  backgrounds.push(`Hintergrund${i.toString().padStart(2,'0')}.png`);
+}
+backgrounds = backgrounds.sort(() => Math.random() - 0.5);
 
 const heroContainer = document.getElementById("hero-container");
-backgrounds.forEach(bg=>{
-  const div=document.createElement("div");
-  div.className="hero-slide";
-  div.style.backgroundImage=`url(${bg})`;
+backgrounds.forEach(bg => {
+  const div = document.createElement("div");
+  div.className = "hero-slide";
+  div.style.backgroundImage = `url(${bg})`;
   heroContainer.appendChild(div);
 });
 
-let slides=document.querySelectorAll(".hero-slide");
-let current=0;
+let slides = document.querySelectorAll(".hero-slide");
+let current = 0;
 slides[current].classList.add("active");
 
-setInterval(()=>{
+setInterval(() => {
   slides[current].classList.remove("active");
-  current=(current+1)%slides.length;
+  current = (current+1) % slides.length;
   slides[current].classList.add("active");
-},8000);
+}, 8000);
 
 /* MUSIK */
-let started=false;
-document.addEventListener("click",()=>{
+let started = false;
+document.addEventListener("click", () => {
   if(!started){
     document.getElementById("bg-music").play();
-    started=true;
+    started = true;
   }
 });
-
-/* JAHRESTAG TEXT + HERZREGEN */
-const annText=document.getElementById("anniversary-text");
-if(now.getMonth()==0 && now.getDate()==21){
-  annText.innerHTML="<h2>❤️ Alles Liebe zum Jahrestag ❤️</h2>";
-  startParticles("heart");
-}
-
-/* GEBURTSTAG 10.04. */
-if(now.getMonth()==3 && now.getDate()==10){
-  startParticles("heart");
-}
-
-/* JAHRESZEITEN */
-function season(){
-  const m=now.getMonth()+1;
-  if(m<=3) startParticles("snow");
-  else if(m<=5) startParticles("flower");
-  else if(m<=9) startParticles("sun");
-  else startParticles("leaf");
-}
-season();
-
-/* PARTIKEL */
-function startParticles(type){
-  setInterval(()=>{
-    const p=document.createElement("div");
-    p.className="particle";
-    p.style.left=Math.random()*100+"vw";
-    p.style.animationDuration=5+Math.random()*5+"s";
-
-    if(type=="snow"){ p.innerText="❄️"; }
-    if(type=="flower"){ p.innerText="🌸"; }
-    if(type=="sun"){ p.innerText="✨"; }
-    if(type=="leaf"){ p.innerText="🍂"; }
-    if(type=="heart"){ p.innerText="❤️"; }
-
-    document.body.appendChild(p);
-    setTimeout(()=>p.remove(),10000);
-  },300);
-}
 
 }
 </script>
