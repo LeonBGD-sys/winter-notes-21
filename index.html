@@ -213,15 +213,26 @@ body {
 </audio>
 
 <script>
+
+
 /*************** PASSWORT ***************/
 const PASSWORD = "21Stephie-Leon01";
 
+if (!TEST_MODE) {
+  // Live-Modus → keine Sperre
+  document.getElementById("password-overlay").style.display = "none";
+  document.getElementById("hero-container").style.display = "block";
+  document.getElementById("hints-container").style.display = "block";
+  startSite();
+}
+
 function checkPassword(){
+  if (!TEST_MODE) return; // Sicherheitshalber
+
   const input = document.getElementById("password-input").value;
   const error = document.getElementById("password-error");
 
   if(input === PASSWORD){
-    sessionStorage.setItem("siteUnlocked", "true");
     document.getElementById("password-overlay").style.display = "none";
     document.getElementById("hero-container").style.display = "block";
     document.getElementById("hints-container").style.display = "block";
@@ -231,12 +242,6 @@ function checkPassword(){
   }
 }
 
-if(sessionStorage.getItem("siteUnlocked")==="true"){
-  document.getElementById("password-overlay").style.display = "none";
-  document.getElementById("hero-container").style.display = "block";
-  document.getElementById("hints-container").style.display = "block";
-  startSite();
-}
 
 /*************** HAUPTLOGIK ***************/
 function startSite(){
