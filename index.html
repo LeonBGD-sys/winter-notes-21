@@ -117,7 +117,6 @@ body {
 
 <body>
 
-<!-- PASSWORT -->
 <div id="password-overlay">
   <div id="password-box">
     <h2>🔒 Geschützt</h2>
@@ -128,7 +127,6 @@ body {
   </div>
 </div>
 
-<!-- HERO -->
 <div class="hero-container" id="hero-container">
   <div class="hero-text">
     <h1>Für dich ❤️</h1>
@@ -145,10 +143,7 @@ body {
 </audio>
 
 <script>
-/*************** MODUS ***************/
-const TEST_MODE = false;   // true = Test MIT Passwort | false = Live OHNE Passwort
-
-/*************** PASSWORT ***************/
+const TEST_MODE = false;
 const PASSWORD = "21Stephie-Leon01";
 
 const overlay = document.getElementById("password-overlay");
@@ -156,17 +151,16 @@ const hero = document.getElementById("hero-container");
 const hintsBox = document.getElementById("hints-container");
 
 overlay.style.display = "none";
-hero.style.display = "block";
-hintsBox.style.display = "block";
 
 if (TEST_MODE) {
   overlay.style.display = "flex";
   hero.style.display = "none";
   hintsBox.style.display = "none";
+} else {
+  startSite();
 }
 
 function checkPassword(){
-  if (!TEST_MODE) return;
   const input = document.getElementById("password-input").value;
   if(input === PASSWORD){
     overlay.style.display="none";
@@ -178,9 +172,21 @@ function checkPassword(){
   }
 }
 
-if(!TEST_MODE) startSite();
+/* DATUMSVERGLEICH OHNE UHRZEIT */
+function isTodayOrAfter(dateStr){
+  const today = new Date();
+  const d = new Date(dateStr);
 
-/*************** HAUPTSEITE ***************/
+  return (
+    today.getFullYear() > d.getFullYear() ||
+    (today.getFullYear() === d.getFullYear() &&
+     today.getMonth() > d.getMonth()) ||
+    (today.getFullYear() === d.getFullYear() &&
+     today.getMonth() === d.getMonth() &&
+     today.getDate() >= d.getDate())
+  );
+}
+
 function startSite(){
 
 /* WARTE TEXTE */
@@ -227,10 +233,9 @@ const hints = [
 ];
 
 const container = document.getElementById("hints-container");
-const now = new Date();
 
 /* ERSTER HINWEIS MIT UMSCHLAG */
-if (TEST_MODE || now >= new Date(hintDates[0])) {
+if (TEST_MODE || isTodayOrAfter(hintDates[0])) {
   const env = document.createElement("div");
   env.className = "hint";
   env.innerHTML = `
@@ -254,11 +259,11 @@ function showHint(i){
 
 hints.forEach((h,i)=>{
   if(i===0) return;
-  if(TEST_MODE || now >= new Date(hintDates[i])) showHint(i);
+  if(TEST_MODE || isTodayOrAfter(hintDates[i])) showHint(i);
 });
 
 /* COUNTDOWN */
-const nextIndex = hintDates.findIndex(d => now < new Date(d));
+const nextIndex = hintDates.findIndex(d => !isTodayOrAfter(d));
 if (nextIndex !== -1) {
   const heroCountdown=document.getElementById("hero-countdown");
   const randomText=waitingTexts[Math.floor(Math.random()*waitingTexts.length)];
@@ -266,7 +271,7 @@ if (nextIndex !== -1) {
   function updateCountdown(){
     const diff=new Date(hintDates[nextIndex])-new Date();
     if(diff<=0) location.reload();
-    const days=Math.floor(diff/(1000*60*60*24));
+    const days=Math.max(0,Math.floor(diff/(1000*60*60*24)));
     heroCountdown.innerHTML=`${randomText}<br><strong>Nächster Hinweis in ${days} Tagen ❤️</strong>`;
   }
   updateCountdown();
@@ -304,47 +309,6 @@ document.addEventListener("click",()=>{
     started=true;
   }
 });
-
-/* JAHRESTAG + GEBURTSTAG */
-const annText=document.getElementById("anniversary-text");
-
-if(now.getMonth()==0 && now.getDate()==21){
-  annText.innerHTML="<h2>❤️ Alles Liebe zum Jahrestag ❤️</h2>";
-  startParticles("heart");
-}
-
-if(now.getMonth()==3 && now.getDate()==10){
-  startParticles("heart");
-}
-
-/* JAHRESZEITEN */
-function season(){
-  const m=now.getMonth()+1;
-  if(m<=3) startParticles("snow");
-  else if(m<=5) startParticles("flower");
-  else if(m<=9) startParticles("sun");
-  else startParticles("leaf");
-}
-season();
-
-/* PARTIKEL */
-function startParticles(type){
-  setInterval(()=>{
-    const p=document.createElement("div");
-    p.className="particle";
-    p.style.left=Math.random()*100+"vw";
-    p.style.animationDuration=5+Math.random()*5+"s";
-
-    if(type=="snow") p.innerText="❄️";
-    if(type=="flower") p.innerText="🌸";
-    if(type=="sun") p.innerText="✨";
-    if(type=="leaf") p.innerText="🍂";
-    if(type=="heart") p.innerText="❤️";
-
-    document.body.appendChild(p);
-    setTimeout(()=>p.remove(),10000);
-  },300);
-}
 
 }
 </script>
