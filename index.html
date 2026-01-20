@@ -14,7 +14,66 @@ body {
   overflow-x: hidden;
 }
 
-/* ===== SAISON CANVAS (GANZE SEITE) ===== */
+/* ===== PASSWORT OVERLAY ===== */
+#password-overlay {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at top, #111, #000);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+#password-box {
+  background: rgba(255,255,255,0.08);
+  border: 2px solid #ffb6c1;
+  border-radius: 16px;
+  padding: 30px 35px;
+  box-shadow: 0 0 30px rgba(255,182,193,0.25);
+  max-width: 320px;
+  width: 90%;
+}
+
+#password-box h2 {
+  margin-top: 0;
+  color: #ffb6c1;
+}
+
+#password-box input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  font-size: 1em;
+  margin-top: 10px;
+  outline: none;
+}
+
+#password-box button {
+  margin-top: 15px;
+  padding: 12px 20px;
+  border-radius: 10px;
+  border: none;
+  font-size: 1em;
+  cursor: pointer;
+  background: #ffb6c1;
+  color: #000;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+#password-box button:hover {
+  transform: scale(1.05);
+  opacity: 0.9;
+}
+
+#password-error {
+  color: #ff7b9c;
+  margin-top: 10px;
+  min-height: 1.2em;
+}
+
+/* ===== SEASON CANVAS ===== */
 #season-canvas {
   position: fixed;
   inset: 0;
@@ -71,7 +130,15 @@ body {
   opacity: 0.9;
 }
 
-/* ===== HINWEISE ===== */
+#anniversary-text {
+  margin-top: 12px;
+  font-size: 1.5em;
+  color: #ffb6c1;
+  font-weight: bold;
+  animation: fadeInUp 2s ease forwards;
+}
+
+/* ===== HINTS ===== */
 .hint {
   position: relative;
   z-index: 3;
@@ -89,75 +156,104 @@ body {
   margin-top: 15px;
 }
 
+.envelope {
+  background: rgba(255,255,255,0.08);
+  border: 2px dashed #ffb6c1;
+  border-radius: 14px;
+  padding: 30px;
+  cursor: pointer;
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.envelope:hover {
+  transform: scale(1.05);
+  background: rgba(255,255,255,0.15);
+}
+
+.envelope span {
+  font-size: 1.4em;
+  color: #ffb6c1;
+}
+
+/* ===== ANIMATIONS ===== */
 @keyframes fadeInUp {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  to { opacity: 1; transform: translateY(0); }
 }
 </style>
 </head>
 
 <body>
 
-<!-- ===== SAISON CANVAS ===== -->
+<!-- ===== PASSWORT SPERRE ===== -->
+<div id="password-overlay">
+  <div id="password-box">
+    <h2>🔒 Geschützte Seite</h2>
+    <p>Bitte gib das Passwort ein ❤️</p>
+    <input type="password" id="password-input" placeholder="Passwort">
+    <button onclick="checkPassword()">Öffnen</button>
+    <div id="password-error"></div>
+  </div>
+</div>
+
 <canvas id="season-canvas"></canvas>
 
-<!-- ===== HERO ===== -->
-<div class="hero-container" id="hero-container">
+<div class="hero-container" id="hero-container" style="display:none;">
   <div class="hero-text">
     <h1>Für dich ❤️</h1>
     <p>Jeden Monat ein kleiner Hinweis…</p>
     <div id="hero-countdown"></div>
+    <div id="anniversary-text"></div>
   </div>
 </div>
 
-<div id="hints-container"></div>
+<div id="hints-container" style="display:none;"></div>
 
-<!-- ===== MUSIK ===== -->
 <audio id="bg-music" loop>
   <source src="Send Me On My Way.mp3" type="audio/mpeg">
 </audio>
 
 <script>
-/**************** MODUS ****************/
-const TEST_MODE = false;
+/*************** PASSWORT ***************/
+const PASSWORD = "21Stephie-Leon01";
 
-/**************** WARTE-TEXTE ****************/
-const waitingTexts = [
-  "Tut mir leid… du musst dich noch etwas gedulden ❤️",
-  "Haha, nice try 😌",
-  "Geduld ist eine Tugend… 😉",
-  "Noch nicht… aber bald 🕰️",
-  "Ich weiß, du bist neugierig 😏",
-  "Fast… aber eben nur fast ❤️",
-  "Schummeln gilt nicht 😄",
-  "Ein bisschen Spannung muss sein ✨",
-  "Warten gehört manchmal dazu 💭",
-  "Noch ist es nicht soweit…"
-];
+function checkPassword(){
+  const input = document.getElementById("password-input").value;
+  const error = document.getElementById("password-error");
 
-/**************** ZUFALLSDATEN HINWEISE ****************/
-function randomDay(year, month) {
-  const days = new Date(year, month + 1, 0).getDate();
-  return Math.floor(Math.random() * (days - 6)) + 3;
-}
-
-function generateDates() {
-  const stored = localStorage.getItem("hintDates");
-  if (stored) return JSON.parse(stored);
-
-  const dates = ["2026-01-21"];
-  for (let m = 1; m < 12; m++) {
-    const d = randomDay(2026, m);
-    dates.push(new Date(2026, m, d).toISOString().split("T")[0]);
+  if(input === PASSWORD){
+    sessionStorage.setItem("siteUnlocked", "true");
+    document.getElementById("password-overlay").style.display = "none";
+    document.getElementById("hero-container").style.display = "block";
+    document.getElementById("hints-container").style.display = "block";
+    startSite();
+  } else {
+    error.innerText = "❌ Falsches Passwort";
   }
-  localStorage.setItem("hintDates", JSON.stringify(dates));
-  return dates;
 }
-const hintDates = generateDates();
 
-/**************** HINWEISE ****************/
+if(sessionStorage.getItem("siteUnlocked")==="true"){
+  document.getElementById("password-overlay").style.display = "none";
+  document.getElementById("hero-container").style.display = "block";
+  document.getElementById("hints-container").style.display = "block";
+  startSite();
+}
+
+/*************** HAUPTLOGIK ***************/
+function startSite(){
+
+const TEST_MODE = true;
+const ANNIVERSARY_DATE = "2026-01-21";
+
+const now = new Date();
+const todayStr = now.toISOString().split("T")[0];
+const isAnniversary = todayStr === ANNIVERSARY_DATE;
+
+if(isAnniversary){
+  document.getElementById("anniversary-text").innerText =
+    "Alles Liebe zum Jahrestag ❤️";
+}
+
+/*************** HINWEISE ***************/
 const hints = [
   { title: "Januar ❤️", text: "Hier kommt dein erster Hinweis…", img: "hinweis01.png" },
   { title: "Februar ❤️", text: "Der zweite kleine Hinweis wartet…", img: "hinweis02.png" },
@@ -174,54 +270,48 @@ const hints = [
 ];
 
 const container = document.getElementById("hints-container");
-const now = new Date();
 
 hints.forEach((hint, i) => {
-  if (TEST_MODE || now >= new Date(hintDates[i])) {
+  if (TEST_MODE || i === 0) {
     const div = document.createElement("div");
     div.className = "hint";
-    div.style.animationDelay = `${(i+1)*0.4}s`;
-    div.innerHTML = `<h2>${hint.title}</h2><p>${hint.text}</p><img src="${hint.img}">`;
-    container.appendChild(div);
+
+    if(i === 0){
+      div.innerHTML = `
+        <div class="envelope" id="envelope">
+          <span>💌 Öffne den ersten Hinweis</span>
+        </div>
+      `;
+      container.appendChild(div);
+
+      div.querySelector("#envelope").addEventListener("click", () => {
+        div.innerHTML = `
+          <h2>${hint.title}</h2>
+          <p>${hint.text}</p>
+          <img src="${hint.img}">
+        `;
+      });
+    } else {
+      div.innerHTML = `<h2>${hint.title}</h2><p>${hint.text}</p><img src="${hint.img}">`;
+      container.appendChild(div);
+    }
   }
 });
 
-/**************** HERO COUNTDOWN ****************/
-if (!TEST_MODE) {
-  const nextIndex = hintDates.findIndex(d => now < new Date(d));
-  if (nextIndex !== -1) {
-    const heroCountdown = document.getElementById("hero-countdown");
-    const randomText = waitingTexts[Math.floor(Math.random() * waitingTexts.length)];
-
-    function updateCountdown() {
-      const diff = new Date(hintDates[nextIndex]) - new Date();
-      if(diff <= 0) location.reload();
-      const days = Math.floor(diff / (1000*60*60*24));
-      const hours = Math.floor((diff / (1000*60*60)) % 24);
-      const minutes = Math.floor((diff / (1000*60)) % 60);
-      heroCountdown.innerHTML = `
-        ${randomText}<br>
-        <strong>Nächster Hinweis in ${days} Tagen, ${hours} Stunden, ${minutes} Minuten ❤️</strong>
-      `;
-    }
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
-  }
-}
-
-/**************** HERO SLIDESHOW ****************/
+/*************** SLIDESHOW ***************/
 let backgrounds = [];
 for(let i=1;i<=20;i++){
   backgrounds.push(`Hintergrund${i.toString().padStart(2,'0')}.png`);
 }
-backgrounds.sort(() => Math.random() - 0.5);
+backgrounds = backgrounds.sort(() => Math.random() - 0.5);
 
-const hero = document.getElementById("hero-container");
+const heroContainer = document.getElementById("hero-container");
+
 backgrounds.forEach(bg => {
-  const d = document.createElement("div");
-  d.className = "hero-slide";
-  d.style.backgroundImage = `url(${bg})`;
-  hero.appendChild(d);
+  const div = document.createElement("div");
+  div.className = "hero-slide";
+  div.style.backgroundImage = `url(${bg})`;
+  heroContainer.appendChild(div);
 });
 
 let slides = document.querySelectorAll(".hero-slide");
@@ -234,7 +324,7 @@ setInterval(() => {
   slides[current].classList.add("active");
 }, 8000);
 
-/**************** MUSIK ****************/
+/*************** MUSIK ***************/
 let started = false;
 document.addEventListener("click", () => {
   if(!started){
@@ -243,11 +333,11 @@ document.addEventListener("click", () => {
   }
 });
 
-/**************** SAISONALE + MAGISCHE PARTIKEL ****************/
+/*************** SAISON EFFEKTE ***************/
 const canvas = document.getElementById("season-canvas");
 const ctx = canvas.getContext("2d");
 
-function resizeCanvas() {
+function resizeCanvas(){
   canvas.width = innerWidth;
   canvas.height = innerHeight;
 }
@@ -259,6 +349,7 @@ function isBirthday(){
 }
 
 function getSeason(){
+  if(isAnniversary || isBirthday()) return "hearts";
   const m = now.getMonth(), d = now.getDate();
   if(m<=2 || (m===3 && d<=15)) return "winter";
   if(m<=5) return "spring";
@@ -267,49 +358,60 @@ function getSeason(){
 }
 
 const season = getSeason();
-const hour = now.getHours();
-const mood = hour<6||hour>=22 ? 0.5 : hour<10 ? 0.8 : hour<18 ? 1 : 0.7;
-
-let particles=[];
-const amount = isBirthday()?180:120;
+let particles = [];
+const amount = 140;
 
 function createParticle(){
   let color;
-  if(isBirthday()) color=`rgba(255,80,120,${Math.random()})`;
-  else if(season==="winter") color=`rgba(255,255,255,${0.8*mood})`;
-  else if(season==="spring") color=`rgba(255,180,200,${0.6*mood})`;
-  else if(season==="summer") color=`rgba(255,255,200,${0.5*mood})`;
-  else color=`rgba(200,120,40,${0.7*mood})`;
+  if(season==="hearts") color="rgba(255,80,120,0.8)";
+  else if(season==="winter") color="rgba(255,255,255,0.8)";
+  else if(season==="spring") color="rgba(255,180,200,0.6)";
+  else if(season==="summer") color="rgba(255,255,200,0.5)";
+  else color="rgba(200,120,40,0.7)";
 
   return {
     x:Math.random()*canvas.width,
     y:Math.random()*canvas.height,
-    size:Math.random()*4+2,
-    speedY:Math.random()*1.2+0.3,
+    size:Math.random()*5+3,
+    speedY:Math.random()*1.2+0.5,
     speedX:(Math.random()-0.5)*0.6,
     color
   };
 }
+
 for(let i=0;i<amount;i++) particles.push(createParticle());
 
-let mouseX=0;
-document.addEventListener("mousemove",e=>mouseX=e.clientX);
+function drawHeart(x,y,size){
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.bezierCurveTo(x-size/2, y-size/2, x-size, y+size/3, x, y+size);
+  ctx.bezierCurveTo(x+size, y+size/3, x+size/2, y-size/2, x, y);
+  ctx.fill();
+}
 
 function animate(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
   particles.forEach(p=>{
     p.y+=p.speedY;
-    p.x+=p.speedX+(mouseX-canvas.width/2)*0.00005;
+    p.x+=p.speedX;
     if(p.y>canvas.height){p.y=0;p.x=Math.random()*canvas.width;}
-    ctx.beginPath();
-    ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+
     ctx.fillStyle=p.color;
-    ctx.fill();
+    if(season==="hearts"){
+      drawHeart(p.x,p.y,p.size);
+    } else {
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+      ctx.fill();
+    }
   });
   requestAnimationFrame(animate);
 }
 animate();
+
+} // end startSite
 </script>
 
 </body>
 </html>
+
