@@ -14,7 +14,7 @@ body {
   overflow-x: hidden;
 }
 
-/* ===== PASSWORT OVERLAY ===== */
+/* ===== PASSWORT ===== */
 #password-overlay {
   position: fixed;
   inset: 0;
@@ -36,23 +36,19 @@ body {
   padding: 10px;
   border-radius: 6px;
   border: none;
-  font-size: 1em;
 }
 
 #password-box button {
   margin-top: 10px;
   padding: 10px 20px;
-  border: none;
   background: #ff4d6d;
   color: #fff;
+  border: none;
   border-radius: 6px;
   cursor: pointer;
 }
 
-#password-error {
-  margin-top: 10px;
-  color: #ff6b6b;
-}
+#password-error { color:#ff6b6b; margin-top:10px; }
 
 /* ===== HERO ===== */
 .hero-container {
@@ -84,8 +80,6 @@ body {
   z-index: 2;
 }
 
-#hero-countdown { margin-top: 10px; }
-
 /* ===== HINWEISE ===== */
 .hint {
   margin: 60px auto;
@@ -103,7 +97,20 @@ body {
 }
 
 @keyframes fadeInUp {
-  to { opacity: 1; transform: translateY(0); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+/* ===== PARTIKEL ===== */
+.particle {
+  position: fixed;
+  top: -10px;
+  pointer-events: none;
+  animation: fall linear infinite;
+  z-index: 1000;
+}
+
+@keyframes fall {
+  to { transform: translateY(110vh); opacity:0; }
 }
 </style>
 </head>
@@ -114,7 +121,7 @@ body {
 <div id="password-overlay">
   <div id="password-box">
     <h2>🔒 Geschützt</h2>
-    <input type="password" id="password-input" placeholder="Passwort eingeben">
+    <input type="password" id="password-input" placeholder="Passwort">
     <br>
     <button onclick="checkPassword()">Öffnen</button>
     <div id="password-error"></div>
@@ -127,6 +134,7 @@ body {
     <h1>Für dich ❤️</h1>
     <p>Jeden Monat ein kleiner Hinweis…</p>
     <div id="hero-countdown"></div>
+    <div id="anniversary-text"></div>
   </div>
 </div>
 
@@ -147,39 +155,30 @@ const overlay = document.getElementById("password-overlay");
 const hero = document.getElementById("hero-container");
 const hintsBox = document.getElementById("hints-container");
 
-/* STANDARD: alles sichtbar */
 overlay.style.display = "none";
 hero.style.display = "block";
 hintsBox.style.display = "block";
 
-/* NUR IM TESTMODUS → PASSWORT */
 if (TEST_MODE) {
   overlay.style.display = "flex";
   hero.style.display = "none";
   hintsBox.style.display = "none";
 }
 
-/* Passwort prüfen */
 function checkPassword(){
   if (!TEST_MODE) return;
-
   const input = document.getElementById("password-input").value;
-  const error = document.getElementById("password-error");
-
   if(input === PASSWORD){
-    overlay.style.display = "none";
-    hero.style.display = "block";
-    hintsBox.style.display = "block";
+    overlay.style.display="none";
+    hero.style.display="block";
+    hintsBox.style.display="block";
     startSite();
   } else {
-    error.innerText = "❌ Falsches Passwort";
+    document.getElementById("password-error").innerText="❌ Falsches Passwort";
   }
 }
 
-/* Start automatisch im Live-Modus */
-if (!TEST_MODE) {
-  startSite();
-}
+if(!TEST_MODE) startSite();
 
 /*************** HAUPTSEITE ***************/
 function startSite(){
@@ -213,83 +212,139 @@ const hintDates = generateDates();
 
 /* HINWEISE */
 const hints = [
-  { title: "Januar ❤️", text: "Hier kommt dein erster Hinweis…", img: "hinweis01.png" },
-  { title: "Februar ❤️", text: "Der zweite kleine Hinweis wartet…", img: "hinweis02.png" },
-  { title: "März ❤️", text: "Ein neuer Monat, ein neuer Hinweis…", img: "hinweis03.png" },
-  { title: "April ❤️", text: "Vielleicht erinnerst du dich…", img: "hinweis04.png" },
-  { title: "Mai ❤️", text: "Ein weiterer Hinweis für dich…", img: "hinweis05.png" },
-  { title: "Juni ❤️", text: "Halbzeit…", img: "hinweis06.png" },
-  { title: "Juli ❤️", text: "Sommer & Erinnerungen…", img: "hinweis07.png" },
-  { title: "August ❤️", text: "Warm wie dieser Monat…", img: "hinweis08.png" },
-  { title: "September ❤️", text: "Der Herbst kommt näher…", img: "hinweis09.png" },
-  { title: "Oktober ❤️", text: "Ein geheimnisvoller Hinweis…", img: "hinweis10.png" },
-  { title: "November ❤️", text: "Fast am Ziel…", img: "hinweis11.png" },
-  { title: "24. Dezember 🎄❤️", text: "Der letzte Hinweis…", img: "hinweis12.png" }
+  { title:"Januar ❤️", text:"Hier kommt dein erster Hinweis…", img:"hinweis01.png" },
+  { title:"Februar ❤️", text:"Der zweite kleine Hinweis wartet…", img:"hinweis02.png" },
+  { title:"März ❤️", text:"Ein neuer Monat, ein neuer Hinweis…", img:"hinweis03.png" },
+  { title:"April ❤️", text:"Vielleicht erinnerst du dich…", img:"hinweis04.png" },
+  { title:"Mai ❤️", text:"Ein weiterer Hinweis für dich…", img:"hinweis05.png" },
+  { title:"Juni ❤️", text:"Halbzeit…", img:"hinweis06.png" },
+  { title:"Juli ❤️", text:"Sommer & Erinnerungen…", img:"hinweis07.png" },
+  { title:"August ❤️", text:"Warm wie dieser Monat…", img:"hinweis08.png" },
+  { title:"September ❤️", text:"Der Herbst kommt näher…", img:"hinweis09.png" },
+  { title:"Oktober ❤️", text:"Ein geheimnisvoller Hinweis…", img:"hinweis10.png" },
+  { title:"November ❤️", text:"Fast am Ziel…", img:"hinweis11.png" },
+  { title:"24. Dezember 🎄❤️", text:"Der letzte Hinweis…", img:"hinweis12.png" }
 ];
 
 const container = document.getElementById("hints-container");
 const now = new Date();
 
-hints.forEach((hint, i) => {
-  if (TEST_MODE || now >= new Date(hintDates[i])) {
-    const div = document.createElement("div");
-    div.className = "hint";
-    div.style.animationDelay = `${(i+1)*2.5}s`;
-    div.innerHTML = `<h2>${hint.title}</h2><p>${hint.text}</p><img src="${hint.img}">`;
-    container.appendChild(div);
-  }
+/* ERSTER HINWEIS MIT UMSCHLAG */
+if (TEST_MODE || now >= new Date(hintDates[0])) {
+  const env = document.createElement("div");
+  env.className = "hint";
+  env.innerHTML = `
+    <div style="border:2px solid #ff4d6d;padding:30px;border-radius:12px;cursor:pointer;background:#111;max-width:300px;margin:0 auto;">
+      💌 <strong>Öffne den ersten Hinweis</strong>
+    </div>`;
+  env.onclick = () => {
+    env.remove();
+    showHint(0);
+  };
+  container.appendChild(env);
+}
+
+function showHint(i){
+  const h = hints[i];
+  const div = document.createElement("div");
+  div.className="hint";
+  div.innerHTML=`<h2>${h.title}</h2><p>${h.text}</p><img src="${h.img}">`;
+  container.appendChild(div);
+}
+
+hints.forEach((h,i)=>{
+  if(i===0) return;
+  if(TEST_MODE || now >= new Date(hintDates[i])) showHint(i);
 });
 
 /* COUNTDOWN */
 const nextIndex = hintDates.findIndex(d => now < new Date(d));
 if (nextIndex !== -1) {
-  const heroCountdown = document.getElementById("hero-countdown");
-  const randomText = waitingTexts[Math.floor(Math.random() * waitingTexts.length)];
+  const heroCountdown=document.getElementById("hero-countdown");
+  const randomText=waitingTexts[Math.floor(Math.random()*waitingTexts.length)];
 
-  function updateCountdown() {
-    const diff = new Date(hintDates[nextIndex]) - new Date();
-    if(diff <= 0) location.reload();
-    const days = Math.floor(diff / (1000*60*60*24));
-    heroCountdown.innerHTML =
-      `${randomText}<br><strong>Nächster Hinweis in ${days} Tagen ❤️</strong>`;
+  function updateCountdown(){
+    const diff=new Date(hintDates[nextIndex])-new Date();
+    if(diff<=0) location.reload();
+    const days=Math.floor(diff/(1000*60*60*24));
+    heroCountdown.innerHTML=`${randomText}<br><strong>Nächster Hinweis in ${days} Tagen ❤️</strong>`;
   }
   updateCountdown();
-  setInterval(updateCountdown, 1000);
+  setInterval(updateCountdown,1000);
 }
 
 /* SLIDESHOW */
-let backgrounds = [];
-for(let i=1;i<=20;i++){
-  backgrounds.push(`Hintergrund${i.toString().padStart(2,'0')}.png`);
-}
-backgrounds = backgrounds.sort(() => Math.random() - 0.5);
+let backgrounds=[];
+for(let i=1;i<=20;i++) backgrounds.push(`Hintergrund${i.toString().padStart(2,'0')}.png`);
+backgrounds.sort(()=>Math.random()-0.5);
 
-const heroContainer = document.getElementById("hero-container");
-backgrounds.forEach(bg => {
-  const div = document.createElement("div");
-  div.className = "hero-slide";
-  div.style.backgroundImage = `url(${bg})`;
+const heroContainer=document.getElementById("hero-container");
+backgrounds.forEach(bg=>{
+  const div=document.createElement("div");
+  div.className="hero-slide";
+  div.style.backgroundImage=`url(${bg})`;
   heroContainer.appendChild(div);
 });
 
-let slides = document.querySelectorAll(".hero-slide");
-let current = 0;
+let slides=document.querySelectorAll(".hero-slide");
+let current=0;
 slides[current].classList.add("active");
 
-setInterval(() => {
+setInterval(()=>{
   slides[current].classList.remove("active");
-  current = (current+1) % slides.length;
+  current=(current+1)%slides.length;
   slides[current].classList.add("active");
-}, 8000);
+},8000);
 
 /* MUSIK */
-let started = false;
-document.addEventListener("click", () => {
+let started=false;
+document.addEventListener("click",()=>{
   if(!started){
     document.getElementById("bg-music").play();
-    started = true;
+    started=true;
   }
 });
+
+/* JAHRESTAG + GEBURTSTAG */
+const annText=document.getElementById("anniversary-text");
+
+if(now.getMonth()==0 && now.getDate()==21){
+  annText.innerHTML="<h2>❤️ Alles Liebe zum Jahrestag ❤️</h2>";
+  startParticles("heart");
+}
+
+if(now.getMonth()==3 && now.getDate()==10){
+  startParticles("heart");
+}
+
+/* JAHRESZEITEN */
+function season(){
+  const m=now.getMonth()+1;
+  if(m<=3) startParticles("snow");
+  else if(m<=5) startParticles("flower");
+  else if(m<=9) startParticles("sun");
+  else startParticles("leaf");
+}
+season();
+
+/* PARTIKEL */
+function startParticles(type){
+  setInterval(()=>{
+    const p=document.createElement("div");
+    p.className="particle";
+    p.style.left=Math.random()*100+"vw";
+    p.style.animationDuration=5+Math.random()*5+"s";
+
+    if(type=="snow") p.innerText="❄️";
+    if(type=="flower") p.innerText="🌸";
+    if(type=="sun") p.innerText="✨";
+    if(type=="leaf") p.innerText="🍂";
+    if(type=="heart") p.innerText="❤️";
+
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),10000);
+  },300);
+}
 
 }
 </script>
