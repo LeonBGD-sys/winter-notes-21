@@ -59,15 +59,15 @@ const hints = [
   { title:"24. Dezember 🎄❤️", text:"Der letzte Hinweis…", img:"hinweis12.png" }
 ];
 
-// ===== HINWEISDATEN EINMALIG GENERIEREN UND SPEICHERN =====
+// ===== HINWEISDATEN =====
 const currentYear = 2026;
 let hintDates = JSON.parse(localStorage.getItem("hintDates") || "null");
 if(!hintDates){
   hintDates = hints.map((_, i) => {
-    let day, hour = 0;
+    let day, hour=0;
     if(i===0) day=21; // Hinweis01 heute
     else if(i===11){ day=24; hour=20; } // Hinweis12 24.12 20:00
-    else { day = Math.floor(Math.random()*28)+1; } // Hinweis02-11 zufällig
+    else day = Math.floor(Math.random()*28)+1; // Zufälliger Tag
     return {y:currentYear, m:i, d:day, h:hour};
   });
   localStorage.setItem("hintDates", JSON.stringify(hintDates));
@@ -76,8 +76,7 @@ hintDates = JSON.parse(localStorage.getItem("hintDates"));
 
 // ===== HILFSFUNKTION =====
 function isAvailable(date){
-  const d = new Date(date.y, date.m, date.d, date.h||0,0,0);
-  return new Date() >= d;
+  return new Date(date.y,date.m,date.d,date.h||0,0,0) <= new Date();
 }
 
 // ===== HINWEISE ANZEIGEN =====
@@ -91,40 +90,36 @@ function showHint(i){
     container.appendChild(div);
   }
   const hint = hints[i];
-  // Countdown direkt erstellen
   div.innerHTML = `<div class="envelope"><span>💌 Öffne den Hinweis</span></div><div class="hint-countdown"></div>`;
-  div.querySelector(".envelope").addEventListener("click", ()=>{
+  div.querySelector(".envelope").addEventListener("click",()=>{
     div.innerHTML = `<h2>${hint.title}</h2><p>${hint.text}</p><img src="${hint.img}"><div class="hint-countdown"></div>`;
   });
 }
 
-// Alle verfügbaren Hinweise anzeigen
-hints.forEach((_, i)=>{
-  if(i===0 || isAvailable(hintDates[i])){
-    showHint(i);
-  }
-});
+// Hinweise anzeigen, die verfügbar sind
+hints.forEach((_,i)=>{ if(i===0 || isAvailable(hintDates[i])) showHint(i); });
 
-// ===== COUNTDOWN OBEN (NÄCHSTER HINWEIS) =====
+// ===== COUNTDOWN OBEN =====
 function updateHeroCountdown(){
   const now = new Date();
   const heroCountdown = document.getElementById("hero-countdown");
-  // nächster Hinweis nach jetzt
-  const next = hintDates.find(d=> new Date(d.y,d.m,d.d,d.h||0,0,0) > now);
-  if(!next){
-    heroCountdown.innerText = "Alle Hinweise geöffnet ❤️";
-    return;
-  }
+  const next = hintDates.find(d=>{
+    const date = new Date(d.y,d.m,d.d,d.h||0,0,0);
+    return date.getTime() > now.getTime();
+  });
+  if(!next){ heroCountdown.innerText="Alle Hinweise geöffnet ❤️"; return; }
   const nextDate = new Date(next.y,next.m,next.d,next.h||0,0,0);
-  const diff = nextDate - now;
+  let diff = nextDate.getTime() - now.getTime();
   if(diff<=0){ heroCountdown.innerText="Ein neuer Hinweis ist verfügbar ❤️"; return; }
   const days = Math.floor(diff / (1000*60*60*24));
-  const hours = Math.floor((diff / (1000*60*60)) % 24);
-  const minutes = Math.floor((diff / (1000*60)) % 60);
+  diff -= days*24*60*60*1000;
+  const hours = Math.floor(diff / (1000*60*60));
+  diff -= hours*60*60*1000;
+  const minutes = Math.floor(diff / (1000*60));
   heroCountdown.innerText = `Nächster Hinweis in ${days}d ${hours}h ${minutes}m ❤️`;
 }
 updateHeroCountdown();
-setInterval(updateHeroCountdown, 1000);
+setInterval(updateHeroCountdown,1000);
 
 // ===== COUNTDOWN UNTER JEDEM HINWEIS =====
 function updateHintCountdowns(){
@@ -132,23 +127,29 @@ function updateHintCountdowns(){
   hints.forEach((_,i)=>{
     const div = document.getElementById("hint-"+i);
     if(!div) return;
-    const countdownDiv = div.querySelector(".hint-countdown");
-    if(!countdownDiv) return;
+    const cd = div.querySelector(".hint-countdown");
+    if(!cd) return;
     const hintDate = new Date(hintDates[i].y,hintDates[i].m,hintDates[i].d,hintDates[i].h||0,0,0);
-    if(now >= hintDate){
-      countdownDiv.innerText = "Hinweis verfügbar ❤️";
-    } else {
-      const diff = hintDate - now;
+    if(now >= hintDate){ cd.innerText="Hinweis verfügbar ❤️"; }
+    else{
+      let diff = hintDate-now;
       const days = Math.floor(diff / (1000*60*60*24));
-      const hours = Math.floor((diff / (1000*60*60)) % 24);
-      const minutes = Math.floor((diff / (1000*60)) % 60);
-      countdownDiv.innerText = `Nächster Hinweis in ${days}d ${hours}h ${minutes}m ❤️`;
+      diff -= days*24*60*60*1000;
+      const hours = Math.floor(diff / (1000*60*60));
+      diff -= hours*60*60*1000;
+      const minutes = Math.floor(diff / (1000*60));
+      cd.innerText=`Nächster Hinweis in ${days}d ${hours}h ${minutes}m ❤️`;
     }
   });
 }
 updateHintCountdowns();
 setInterval(updateHintCountdowns,1000);
 
+// ===== ANNIVERSARY =====
+const anniversaryText = document.getElementById("anniversary-text");
+const today = new Date();
+if(today.getDate()===21 && today.getMonth()===0) anniversaryText.innerText="Alles Liebe zum Jahrestag ❤️";
+if(today.getDate()===10 && today.getMonth()===3) anniversaryText.innerText="Alles Gute zum Geburtstag mein Schatz 🎂";
 
 // ===== SLIDESHOW =====
 let backgrounds=[];
@@ -169,29 +170,27 @@ setInterval(()=>{ slides[cur].classList.remove("active"); cur=(cur+1)%slides.len
 let started=false;
 document.addEventListener("click",()=>{if(!started){document.getElementById("bg-music").play();started=true;}});
 
-// ===== PARTIKEL =====
+// ===== SAISONPARTIKEL =====
 const canvas=document.getElementById("season-canvas");
 const ctx=canvas.getContext("2d");
 function resizeCanvas(){canvas.width=innerWidth;canvas.height=innerHeight;}
-window.addEventListener("resize",resizeCanvas); resizeCanvas();
+window.addEventListener("resize",resizeCanvas);resizeCanvas();
 
 let particles=[];
-let mouseX=canvas.width/2, mouseY=canvas.height/2;
-document.addEventListener("mousemove", e=>{ mouseX=e.clientX; mouseY=e.clientY; });
+const hour=today.getHours();
+let mood=hour<6||hour>=22?0.5:hour<10?0.8:hour<18?1:0.7;
+let mouseX=canvas.width/2,mouseY=canvas.height/2;
+document.addEventListener("mousemove",e=>{mouseX=e.clientX; mouseY=e.clientY;});
 
 function getSeason(){
-  const now = new Date();
-  if(now.getDate()===21 && now.getMonth()===0) return "hearts";
-  if(now.getDate()===10 && now.getMonth()===3) return "birthday";
-  const m = now.getMonth();
+  if(today.getDate()===21 && today.getMonth()===0) return "hearts";
+  const m=today.getMonth();
   if(m<=2) return "winter";
   if(m<=5) return "spring";
   if(m<=8) return "summer";
   return "autumn";
 }
-const season = getSeason();
-const mood = 0.8;
-
+const season=getSeason();
 function createParticle(){
   let color;
   if(season==="hearts") color="rgba(255,80,120,0.8)";
@@ -199,35 +198,12 @@ function createParticle(){
   else if(season==="spring") color=`rgba(255,180,200,${0.6*mood})`;
   else if(season==="summer") color=`rgba(255,255,200,${0.5*mood})`;
   else color=`rgba(200,120,40,${0.7*mood})`;
-  return {x:Math.random()*canvas.width, y:Math.random()*canvas.height, size:Math.random()*5+3, speedY:Math.random()*1.2+0.5, speedX:(Math.random()-0.5)*0.6, color};
+  return {x:Math.random()*canvas.width,y:Math.random()*canvas.height,size:Math.random()*5+3,speedY:Math.random()*1.2+0.5,speedX:(Math.random()-0.5)*0.6,color};
 }
 for(let i=0;i<140;i++) particles.push(createParticle());
-
-function drawHeart(x,y,size){ ctx.beginPath(); ctx.moveTo(x,y); ctx.bezierCurveTo(x-size/2,y-size/2,x-size,y+size/3,x,y+size); ctx.bezierCurveTo(x+size,y+size/3,x+size/2,y-size/2,x,y); ctx.fill(); }
-
-function animate(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  particles.forEach(p=>{
-    let dx=p.x-mouseX, dy=p.y-mouseY, dist=Math.sqrt(dx*dx+dy*dy);
-    if(dist<100){ p.x+=dx/20; p.y+=dy/20; }
-    p.y+=p.speedY; p.x+=p.speedX;
-    if(p.y>canvas.height){ p.y=0; p.x=Math.random()*canvas.width; }
-    if(p.x>canvas.width){ p.x=0; }
-    if(p.x<0){ p.x=canvas.width; }
-    ctx.fillStyle=p.color;
-    if(season==="hearts") drawHeart(p.x,p.y,p.size);
-    else{ ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2); ctx.fill(); }
-  });
-  requestAnimationFrame(animate);
-}
+function drawHeart(x,y,size){ ctx.beginPath(); ctx.moveTo(x,y); ctx.bezierCurveTo(x-size/2,y-size/2,x-size,y+size/3,x,y+size); ctx.bezierCurveTo(x+size,y+size/3,x+size/2,y-size/2,x,y); ctx.fill();}
+function animate(){ ctx.clearRect(0,0,canvas.width,canvas.height); particles.forEach(p=>{ let dx=p.x-mouseX,dy=p.y-mouseY,dist=Math.sqrt(dx*dx+dy*dy); if(dist<100){p.x+=dx/20;p.y+=dy/20;} p.y+=p.speedY; p.x+=p.speedX; if(p.y>canvas.height){p.y=0;p.x=Math.random()*canvas.width;} if(p.x>canvas.width){p.x=0;} if(p.x<0){p.x=canvas.width;} ctx.fillStyle=p.color; if(season==="hearts") drawHeart(p.x,p.y,p.size); else{ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();} }); requestAnimationFrame(animate);}
 animate();
-
-// ===== ANNIVERSARY / BIRTHDAY =====
-const anniversaryText = document.getElementById("anniversary-text");
-const today = new Date();
-if(today.getDate()===21 && today.getMonth()===0) anniversaryText.innerText="Alles Liebe zum Jahrestag ❤️";
-if(today.getDate()===10 && today.getMonth()===3) anniversaryText.innerText="Alles Gute zum Geburtstag mein Schatz 🎂";
-
 </script>
 </body>
 </html>
