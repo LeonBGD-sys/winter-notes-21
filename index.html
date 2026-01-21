@@ -103,31 +103,38 @@ hints.forEach((_, i)=>{
 });
 
 // ===== COUNTDOWN UNTER JEDEM HINWEIS =====
-function updateHintCountdowns(){
+function updateHeroCountdown() {
   const now = new Date();
-  hints.forEach((_,i)=>{
-    const hintDiv = document.getElementById("hint-"+i);
-    if(!hintDiv) return;
-    let countdownDiv = hintDiv.querySelector(".hint-countdown");
-    if(!countdownDiv){
-      countdownDiv = document.createElement("div");
-      countdownDiv.className = "hint-countdown";
-      hintDiv.appendChild(countdownDiv);
-    }
-    const hintDate = new Date(hintDates[i].y,hintDates[i].m,hintDates[i].d,hintDates[i].h||0);
-    if(now >= hintDate){
-      countdownDiv.innerText = "Hinweis verfügbar ❤️";
-    } else {
-      const diff = hintDate - now;
-      const days = Math.floor(diff / (1000*60*60*24));
-      const hours = Math.floor((diff / (1000*60*60)) % 24);
-      const minutes = Math.floor((diff / (1000*60)) % 60);
-      countdownDiv.innerText = `Nächster Hinweis in ${days}d ${hours}h ${minutes}m ❤️`;
-    }
+  // Nächster Hinweis, dessen Datum > jetzt
+  let next = hintDates.find(dateObj => {
+    const d = new Date(dateObj.y, dateObj.m, dateObj.d, dateObj.h||0, 0, 0);
+    return d > now;
   });
+
+  const heroCountdown = document.getElementById("hero-countdown");
+  if (!next) {
+    heroCountdown.innerText = "Alle Hinweise geöffnet ❤️";
+    return;
+  }
+
+  const nextDate = new Date(next.y, next.m, next.d, next.h||0, 0, 0);
+  const diff = nextDate - now;
+
+  if(diff <= 0){
+    heroCountdown.innerText = "Ein neuer Hinweis ist verfügbar ❤️";
+    return;
+  }
+
+  const days = Math.floor(diff / (1000*60*60*24));
+  const hours = Math.floor((diff / (1000*60*60)) % 24);
+  const minutes = Math.floor((diff / (1000*60)) % 60);
+
+  heroCountdown.innerText = `Nächster Hinweis in ${days}d ${hours}h ${minutes}m ❤️`;
 }
-updateHintCountdowns();
-setInterval(updateHintCountdowns, 1000);
+
+updateHeroCountdown();
+setInterval(updateHeroCountdown, 1000);
+
 
 // ===== SLIDESHOW =====
 let backgrounds=[];
