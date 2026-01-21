@@ -59,7 +59,6 @@ const hints = [
 ];
 
 const hintsContainer = document.getElementById("hints-container");
-hintsContainer.style.display="block";
 const heroCountdown = document.getElementById("hero-countdown");
 const anniversaryText = document.getElementById("anniversary-text");
 const now = new Date();
@@ -71,8 +70,8 @@ if(!hintDates){
   hintDates=[];
   for(let m=0;m<12;m++){
     let day,hour=0;
-    if(m===0) day=21; // Jahrestag Januar
-    else if(m===11){ day=24; hour=20; } // letzter Hinweis 24.12 um 20 Uhr
+    if(m===0) day=21; // 21. Januar
+    else if(m===11){ day=24; hour=20; } // 24. Dezember 20 Uhr
     else day=Math.floor(Math.random()*28)+1; // Zufallstag
     hintDates.push({y:currentYear,m:m,d:day,h:hour});
   }
@@ -83,14 +82,10 @@ hintDates = JSON.parse(localStorage.getItem("hintDates"));
 // ===== OPENED HINTS =====
 let openedHints = JSON.parse(localStorage.getItem("openedHints") || "[]");
 
-// ===== BESTIMME CURRENT HINT INDEX =====
-let currentHintIndex = hintDates.findIndex((hd,i)=>!openedHints.includes(i) && isTodayOrAfter(hd));
-if(currentHintIndex===-1) currentHintIndex=hints.length; // alle Hinweise offen
-
 // ===== HELPER =====
 function isTodayOrAfter(date){
   const today = new Date(); today.setHours(0,0,0,0);
-  const d = new Date(date.y,date.m,date.d,date.h||0,0,0,0);
+  const d = new Date(date.y,date.m,date.d,date.h||0);
   return today>=d;
 }
 
@@ -111,12 +106,15 @@ function showHint(i){
     div.innerHTML=`<div class="envelope"><span>💌 Öffne den Hinweis</span></div>`;
     div.querySelector(".envelope").addEventListener("click",()=>{
       div.innerHTML=`<h2>${hint.title}</h2><p>${hint.text}</p><img src="${hint.img}">`;
-      if(!openedHints.includes(i)) { openedHints.push(i); localStorage.setItem("openedHints", JSON.stringify(openedHints)); }
+      if(!openedHints.includes(i)) { 
+        openedHints.push(i); 
+        localStorage.setItem("openedHints", JSON.stringify(openedHints)); 
+      }
     });
   }
 }
 
-// ===== SHOW ALL AVAILABLE HINTS HEUTE =====
+// ===== ALLE VERFÜGBAREN HINWEISE ANZEIGEN =====
 function showAvailableHints(){
   for(let i=0;i<hints.length;i++){
     if(isTodayOrAfter(hintDates[i])){
@@ -128,8 +126,11 @@ showAvailableHints();
 
 // ===== COUNTDOWN =====
 function updateCountdown(){
-  let nextHintIndex = hints.findIndex((_,i)=>!openedHints.includes(i) && isTodayOrAfter(hintDates[i])===false);
-  if(nextHintIndex===-1){ heroCountdown.innerHTML="Alle Hinweise geöffnet ❤️"; return; }
+  let nextHintIndex = hints.findIndex((_,i)=>!openedHints.includes(i) && new Date(hintDates[i].y,hintDates[i].m,hintDates[i].d,hintDates[i].h||0) > new Date());
+  if(nextHintIndex===-1){ 
+    heroCountdown.innerHTML="Alle Hinweise geöffnet ❤️"; 
+    return; 
+  }
   const next = hintDates[nextHintIndex];
   const nextDate = new Date(next.y,next.m,next.d,next.h||0);
   let diff = nextDate - new Date();
