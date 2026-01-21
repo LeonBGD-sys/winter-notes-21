@@ -5,64 +5,27 @@
 <title>Für dich ❤️</title>
 
 <style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #000;
-  color: #fff;
-  text-align: center;
-  overflow-x: hidden;
-}
+body { margin:0; font-family:Arial,sans-serif; background:#000; color:#fff; text-align:center; overflow-x:hidden; }
 
 /* ===== SEASON CANVAS ===== */
-#season-canvas {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
-}
+#season-canvas { position:fixed; inset:0; pointer-events:none; z-index:1; }
 
 /* ===== HERO ===== */
-.hero-container {
-  position: relative;
-  height: 100vh;
-  overflow: hidden;
-}
-
-.hero-slide {
-  position: absolute;
-  inset: 0;
-  background-size: contain;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-color: #000;
-  opacity: 0;
-  transition: opacity 1.5s ease-in-out;
-  z-index: 0;
-}
-
-.hero-slide.active { opacity: 1; }
-
-.hero-text {
-  position: absolute;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  text-shadow: 2px 2px 6px #000;
-  z-index: 3;
-}
-
-.hero-text h1 { font-size: 2.8em; margin: 0; }
-.hero-text p { font-size: 1.2em; margin-top: 5px; }
-#hero-countdown { margin-top: 10px; font-size: 1.1em; font-style: italic; opacity: 0.9; }
-#anniversary-text { margin-top: 12px; font-size: 1.5em; color: #ffb6c1; font-weight: bold; animation: fadeInUp 2s ease forwards; }
+.hero-container { position:relative; height:100vh; overflow:hidden; }
+.hero-slide { position:absolute; inset:0; background-size:contain; background-position:center; background-repeat:no-repeat; background-color:#000; opacity:0; transition: opacity 1.5s ease-in-out; z-index:0; }
+.hero-slide.active { opacity:1; }
+.hero-text { position:absolute; top:20px; left:50%; transform:translateX(-50%); text-shadow:2px 2px 6px #000; z-index:3; }
+.hero-text h1 { font-size:2.8em; margin:0; }
+.hero-text p { font-size:1.2em; margin-top:5px; }
+#hero-countdown { margin-top:10px; font-size:1.1em; font-style:italic; opacity:0.9; }
+#anniversary-text { margin-top:12px; font-size:1.5em; color:#ffb6c1; font-weight:bold; animation:fadeInUp 2s ease forwards; }
 
 /* ===== HINWEISE ===== */
-.hint { position: relative; z-index: 3; margin: 60px auto; max-width: 800px; padding: 0 20px; opacity: 0; transform: translateY(30px); animation: fadeInUp 1.2s ease forwards; }
-.hint img { width: 100%; border-radius: 12px; margin-top: 15px; }
-.envelope { background: rgba(255,255,255,0.08); border: 2px dashed #ffb6c1; border-radius: 14px; padding: 30px; cursor: pointer; transition: transform 0.3s ease, background 0.3s ease; }
-.envelope:hover { transform: scale(1.05); background: rgba(255,255,255,0.15); }
-.envelope span { font-size: 1.4em; color: #ffb6c1; }
+.hint { position:relative; z-index:3; margin:60px auto; max-width:800px; padding:0 20px; opacity:0; transform:translateY(30px); animation:fadeInUp 1.2s ease forwards; }
+.hint img { width:100%; border-radius:12px; margin-top:15px; }
+.envelope { background:rgba(255,255,255,0.08); border:2px dashed #ffb6c1; border-radius:14px; padding:30px; cursor:pointer; transition:transform 0.3s ease, background 0.3s ease; }
+.envelope:hover { transform:scale(1.05); background:rgba(255,255,255,0.15); }
+.envelope span { font-size:1.4em; color:#ffb6c1; }
 
 @keyframes fadeInUp { to { opacity:1; transform:translateY(0); } }
 </style>
@@ -107,33 +70,31 @@ const hintsContainer = document.getElementById("hints-container");
 const heroCountdown = document.getElementById("hero-countdown");
 const anniversaryText = document.getElementById("anniversary-text");
 
-const hintDates = []; 
-const now = new Date();
-const currentYear = now.getFullYear();
+const currentYear = new Date().getFullYear();
+let hintDates = JSON.parse(localStorage.getItem("hintDates") || "null");
 
-// ======== Zufällige Tage für Hinweise pro Monat ========
-for(let m=0; m<12; m++){
-  let day;
-  if(m === 0) day = 21; // Januar fix am Jahrestag
-  else if(m === 11) day = 24; // Dezember fix 24.12
-  else day = Math.floor(Math.random()*(28-1+1)+1); // 1–28 zufällig
-  hintDates.push(new Date(currentYear, m, day, m===11?20:0, 0, 0)); // Dez = 20 Uhr
-}
-
-// ======== Jahrestag Text & Herzregen ========
-if(now.getDate()===21 && now.getMonth()===0){
-  anniversaryText.innerText = "Alles Liebe zum Jahrestag ❤️";
-}
+// ======== Zufällige Tage für Hinweise nur einmal generieren ========
+if(!hintDates){
+  hintDates = [];
+  for(let m=0; m<12; m++){
+    let day;
+    if(m===0) day=21; // Jahrestag
+    else if(m===11) day=24; // 24.12
+    else day = Math.floor(Math.random()*28)+1; // zufällig 1-28
+    hintDates.push(new Date(currentYear,m,day,m===11?20:0,0,0).toISOString());
+  }
+  localStorage.setItem("hintDates", JSON.stringify(hintDates));
+} 
+hintDates = hintDates.map(d=>new Date(d)); // zurück zu Date-Objekten
 
 /*************** HINWEIS-LOGIK ***************/
-let currentHintIndex = localStorage.getItem("currentHintIndex");
-currentHintIndex = currentHintIndex ? parseInt(currentHintIndex) : 0;
+let currentHintIndex = parseInt(localStorage.getItem("currentHintIndex")||0);
 
 function showHint(i){
   hintsContainer.innerHTML = "";
   const hint = hints[i];
   const div = document.createElement("div");
-  div.className = "hint";
+  div.className="hint";
   div.innerHTML = `<div class="envelope" id="envelope"><span>💌 Öffne den Hinweis</span></div>`;
   hintsContainer.appendChild(div);
 
@@ -145,14 +106,14 @@ function showHint(i){
 /*************** COUNTDOWN-LOGIK ***************/
 function updateCountdown(){
   const now = new Date();
-  if(currentHintIndex >= hints.length) return; // alle Hinweise fertig
+  if(currentHintIndex>=hints.length) return;
   const nextHintDate = hintDates[currentHintIndex];
-  let diff = nextHintDate - now;
-  if(diff <= 0){
+  let diff = nextHintDate-now;
+  if(diff<=0){
     showHint(currentHintIndex);
     currentHintIndex++;
     localStorage.setItem("currentHintIndex", currentHintIndex);
-    if(currentHintIndex < hints.length) updateCountdown();
+    if(currentHintIndex<hints.length) updateCountdown();
     return;
   }
   const days = Math.floor(diff/(1000*60*60*24));
@@ -161,7 +122,7 @@ function updateCountdown(){
   heroCountdown.innerHTML = `Nächster Hinweis in ${days}d ${hours}h ${minutes}m ❤️`;
 }
 updateCountdown();
-setInterval(updateCountdown, 1000*60); // jede Minute
+setInterval(updateCountdown, 1000*60);
 
 /*************** SLIDESHOW ***************/
 let backgrounds = [];
@@ -192,16 +153,16 @@ const ctx=canvas.getContext("2d");
 function resizeCanvas(){canvas.width=innerWidth;canvas.height=innerHeight;}
 window.addEventListener("resize", resizeCanvas); resizeCanvas();
 
-const hour=now.getHours();
+const hour=new Date().getHours();
 let mood=hour<6||hour>=22?0.5:hour<10?0.8:hour<18?1:0.7;
 let particles=[];
-const amount=140;
 let mouseX=canvas.width/2, mouseY=canvas.height/2;
 document.addEventListener("mousemove", e=>{mouseX=e.clientX; mouseY=e.clientY;});
 
 function getSeason(){
-  if(now.getDate()===21 && now.getMonth()===0) return "hearts"; // Jahrestag
-  if(now.getDate()===10 && now.getMonth()===3) return "birthday"; // Geburtstag
+  const now=new Date();
+  if(now.getDate()===21 && now.getMonth()===0) return "hearts";
+  if(now.getDate()===10 && now.getMonth()===3) return "birthday";
   const m=now.getMonth();
   if(m<=2) return "winter";
   if(m<=5) return "spring";
@@ -217,10 +178,10 @@ function createParticle(){
   else if(season==="spring") color=`rgba(255,180,200,${0.6*mood})`;
   else if(season==="summer") color=`rgba(255,255,200,${0.5*mood})`;
   else color=`rgba(200,120,40,${0.7*mood})`;
-
   return {x:Math.random()*canvas.width, y:Math.random()*canvas.height, size:Math.random()*5+3, speedY:Math.random()*1.2+0.5, speedX:(Math.random()-0.5)*0.6, color};
 }
-for(let i=0;i<amount;i++) particles.push(createParticle());
+
+for(let i=0;i<140;i++) particles.push(createParticle());
 
 function drawHeart(x,y,size){
   ctx.beginPath();
@@ -239,13 +200,14 @@ function animate(){
     if(p.y>canvas.height){p.y=0;p.x=Math.random()*canvas.width;}
     if(p.x>canvas.width){p.x=0;} if(p.x<0){p.x=canvas.width;}
     ctx.fillStyle=p.color;
-    if(season==="hearts") drawHeart(p.x,p.y,p.size); 
+    if(season==="hearts") drawHeart(p.x,p.y,p.size);
     else{ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2); ctx.fill();}
   });
   requestAnimationFrame(animate);
 }
 animate();
 </script>
-
 </body>
+</html>
+
 </html>
