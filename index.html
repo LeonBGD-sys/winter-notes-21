@@ -310,6 +310,51 @@ document.addEventListener("click",()=>{
   }
 });
 
+/* ===== PARTICLE EFFECTS ===== */
+function createParticle(char, color){
+  const p=document.createElement("div");
+  p.className="particle";
+  p.style.fontSize=(Math.random()*20+10)+"px";
+  p.style.color=color;
+  p.style.left=Math.random()*100+"vw";
+  p.style.top="-10px";
+  p.innerText=char;
+  document.body.appendChild(p);
+  const duration=Math.random()*5+5;
+  p.style.animationDuration=duration+"s";
+  setTimeout(()=>p.remove(),duration*1000);
+}
+
+function startParticlesForMonth(){
+  const today=new Date();
+  const month=today.getMonth()+1; // 1-12
+  const date=today.getDate();
+
+  // Winter: Schnee
+  if([1,2,3,12].includes(month)){
+    for(let i=0;i<15;i++){
+      setInterval(()=>createParticle("❄️","#fff"),800);
+    }
+  }
+
+  // Frühling: Blümchen April & Mai
+  if([4,5].includes(month)){
+    const flowers=["🌸","🌼","💐"];
+    for(let i=0;i<15;i++){
+      setInterval(()=>createParticle(flowers[Math.floor(Math.random()*flowers.length)],"#ff69b4"),800);
+    }
+  }
+
+  // Spezielle Tage: Herzen
+  if((month===1 && date===21) || (month===4 && date===10)){
+    for(let i=0;i<20;i++){
+      setInterval(()=>createParticle("❤️","#ff4d6d"),500);
+    }
+  }
+}
+
+startParticlesForMonth();
+
 }
 </script>
 
