@@ -12,13 +12,13 @@ body {margin:0; font-family:Arial,sans-serif; background:#000; color:#fff; text-
 .hero-text {position:absolute; top:20px; left:50%; transform:translateX(-50%); text-shadow:2px 2px 6px #000; z-index:3;}
 .hero-text h1 {font-size:2.8em; margin:0;}
 .hero-text p {font-size:1.2em; margin-top:5px;}
-#hero-countdown {margin-top:10px; font-size:1.1em; font-style:italic; opacity:0.9;}
 #anniversary-text {margin-top:12px; font-size:1.5em; color:#ffb6c1; font-weight:bold; animation:fadeInUp 2s ease forwards;}
 .hint {position:relative; z-index:3; margin:60px auto; max-width:800px; padding:0 20px; opacity:1; transform:translateY(0);}
 .hint img {width:100%; border-radius:12px; margin-top:15px;}
 .envelope {background:rgba(255,255,255,0.08); border:2px dashed #ffb6c1; border-radius:14px; padding:30px; cursor:pointer; transition:transform 0.3s ease, background 0.3s ease;}
 .envelope:hover {transform:scale(1.05); background:rgba(255,255,255,0.15);}
 .envelope span {font-size:1.4em; color:#ffb6c1;}
+.hint-countdown {font-style:italic; margin-top:5px; color:#ffb6c1;}
 @keyframes fadeInUp {to {opacity:1; transform:translateY(0);}}
 </style>
 </head>
@@ -30,7 +30,6 @@ body {margin:0; font-family:Arial,sans-serif; background:#000; color:#fff; text-
   <div class="hero-text">
     <h1>Für dich ❤️</h1>
     <p>Jeden Monat ein kleiner Hinweis…</p>
-    <div id="hero-countdown"></div>
     <div id="anniversary-text"></div>
   </div>
 </div>
@@ -92,7 +91,7 @@ function showHint(i){
   const hint = hints[i];
   div.innerHTML = `<div class="envelope"><span>💌 Öffne den Hinweis</span></div>`;
   div.querySelector(".envelope").addEventListener("click", ()=>{
-    div.innerHTML = `<h2>${hint.title}</h2><p>${hint.text}</p><img src="${hint.img}">`;
+    div.innerHTML = `<h2>${hint.title}</h2><p>${hint.text}</p><img src="${hint.img}"><div class="hint-countdown"></div>`;
   });
 }
 
@@ -103,23 +102,32 @@ hints.forEach((_, i)=>{
   }
 });
 
-// ===== COUNTDOWN =====
-function updateCountdown(){
+// ===== COUNTDOWN UNTER JEDEM HINWEIS =====
+function updateHintCountdowns(){
   const now = new Date();
-  // Nächster Hinweis, dessen Datum > jetzt
-  let next = hintDates.find(dateObj => new Date(dateObj.y,dateObj.m,dateObj.d,dateObj.h||0) > now );
-  if(!next){ 
-    document.getElementById("hero-countdown").innerText="Alle Hinweise geöffnet ❤️"; 
-    return; 
-  }
-  const diff = new Date(next.y,next.m,next.d,next.h||0) - now;
-  const days = Math.floor(diff / (1000*60*60*24));
-  const hours = Math.floor((diff / (1000*60*60)) % 24);
-  const minutes = Math.floor((diff / (1000*60)) % 60);
-  document.getElementById("hero-countdown").innerText = `Nächster Hinweis in ${days}d ${hours}h ${minutes}m ❤️`;
+  hints.forEach((_,i)=>{
+    const hintDiv = document.getElementById("hint-"+i);
+    if(!hintDiv) return;
+    let countdownDiv = hintDiv.querySelector(".hint-countdown");
+    if(!countdownDiv){
+      countdownDiv = document.createElement("div");
+      countdownDiv.className = "hint-countdown";
+      hintDiv.appendChild(countdownDiv);
+    }
+    const hintDate = new Date(hintDates[i].y,hintDates[i].m,hintDates[i].d,hintDates[i].h||0);
+    if(now >= hintDate){
+      countdownDiv.innerText = "Hinweis verfügbar ❤️";
+    } else {
+      const diff = hintDate - now;
+      const days = Math.floor(diff / (1000*60*60*24));
+      const hours = Math.floor((diff / (1000*60*60)) % 24);
+      const minutes = Math.floor((diff / (1000*60)) % 60);
+      countdownDiv.innerText = `Nächster Hinweis in ${days}d ${hours}h ${minutes}m ❤️`;
+    }
+  });
 }
-updateCountdown();
-setInterval(updateCountdown, 1000);
+updateHintCountdowns();
+setInterval(updateHintCountdowns, 1000);
 
 // ===== SLIDESHOW =====
 let backgrounds=[];
