@@ -65,24 +65,27 @@ const anniversaryText = document.getElementById("anniversary-text");
 const now = new Date();
 const currentYear = now.getFullYear();
 
-// ===== HINT DATES EINMALIG RANDOM FÜR MONATE =====
+// ===== HINT DATES EINMALIG ZUFÄLLIG GENERIEREN =====
 let hintDates = JSON.parse(localStorage.getItem("hintDates")||"null");
 if(!hintDates){
   hintDates=[];
   for(let m=0;m<12;m++){
-    let day;
-    if(m===0) day=21; // Jahrestag
-    else if(m===11) day=24; // 24.12
+    let day,hour=0;
+    if(m===0) day=21; // Jahrestag Januar
+    else if(m===11){ day=24; hour=20; } // letzter Hinweis 24.12 um 20 Uhr
     else day=Math.floor(Math.random()*28)+1; // Zufallstag
-    hintDates.push({y:currentYear,m:m,d:day,h:m===11?20:0});
+    hintDates.push({y:currentYear,m:m,d:day,h:hour});
   }
   localStorage.setItem("hintDates",JSON.stringify(hintDates));
 }
 hintDates = JSON.parse(localStorage.getItem("hintDates"));
 
-// ===== CURRENT HINT & OPENED =====
-let currentHintIndex = parseInt(localStorage.getItem("currentHintIndex")||0);
+// ===== OPENED HINTS =====
 let openedHints = JSON.parse(localStorage.getItem("openedHints") || "[]");
+
+// ===== BESTIMME CURRENT HINT INDEX =====
+let currentHintIndex = hintDates.findIndex((hd,i)=>!openedHints.includes(i) && isTodayOrAfter(hd));
+if(currentHintIndex===-1) currentHintIndex=hints.length; // alle Hinweise offen
 
 // ===== HELPER =====
 function isTodayOrAfter(date){
@@ -93,10 +96,14 @@ function isTodayOrAfter(date){
 
 // ===== SHOW HINT =====
 function showHint(i){
-  hintsContainer.innerHTML="";
   const hint=hints[i];
-  const div=document.createElement("div");
-  div.className="hint";
+  let div=document.getElementById(`hint-${i}`);
+  if(!div){
+    div=document.createElement("div");
+    div.id=`hint-${i}`;
+    div.className="hint";
+    hintsContainer.appendChild(div);
+  }
 
   if(openedHints.includes(i)){
     div.innerHTML=`<h2>${hint.title}</h2><p>${hint.text}</p><img src="${hint.img}">`;
@@ -105,32 +112,36 @@ function showHint(i){
     div.querySelector(".envelope").addEventListener("click",()=>{
       div.innerHTML=`<h2>${hint.title}</h2><p>${hint.text}</p><img src="${hint.img}">`;
       if(!openedHints.includes(i)) { openedHints.push(i); localStorage.setItem("openedHints", JSON.stringify(openedHints)); }
-      if(i===currentHintIndex){ currentHintIndex++; localStorage.setItem("currentHintIndex",currentHintIndex);}
     });
   }
-  hintsContainer.appendChild(div);
 }
 
-// ===== CHECK & SHOW HINT HEUTE =====
-if(currentHintIndex<hints.length && isTodayOrAfter(hintDates[currentHintIndex])){
-  showHint(currentHintIndex);
+// ===== SHOW ALL AVAILABLE HINTS HEUTE =====
+function showAvailableHints(){
+  for(let i=0;i<hints.length;i++){
+    if(isTodayOrAfter(hintDates[i])){
+      showHint(i);
+    }
+  }
 }
+showAvailableHints();
 
 // ===== COUNTDOWN =====
 function updateCountdown(){
-  if(currentHintIndex>=hints.length){ heroCountdown.innerHTML="Alle Hinweise geöffnet ❤️"; return; }
-  const now = new Date();
-  const next = hintDates[currentHintIndex];
+  let nextHintIndex = hints.findIndex((_,i)=>!openedHints.includes(i) && isTodayOrAfter(hintDates[i])===false);
+  if(nextHintIndex===-1){ heroCountdown.innerHTML="Alle Hinweise geöffnet ❤️"; return; }
+  const next = hintDates[nextHintIndex];
   const nextDate = new Date(next.y,next.m,next.d,next.h||0);
-  let diff = nextDate - now;
-  if(diff<=0){ showHint(currentHintIndex); heroCountdown.innerHTML="Ein neuer Hinweis ist verfügbar ❤️"; return; }
+  let diff = nextDate - new Date();
+  if(diff<=0){ showHint(nextHintIndex); heroCountdown.innerHTML="Ein neuer Hinweis ist verfügbar ❤️"; return; }
   const days=Math.floor(diff/(1000*60*60*24));
   const hours=Math.floor((diff/(1000*60*60))%24);
   const minutes=Math.floor((diff/(1000*60))%60);
-  heroCountdown.innerHTML=`Nächster Hinweis in ${days}d ${hours}h ${minutes}m ❤️`;
+  const seconds=Math.floor((diff/1000)%60);
+  heroCountdown.innerHTML=`Nächster Hinweis in ${days}d ${hours}h ${minutes}m ${seconds}s ❤️`;
 }
 updateCountdown();
-setInterval(updateCountdown,60000);
+setInterval(updateCountdown,1000);
 
 // ===== SLIDESHOW =====
 let backgrounds=[];
