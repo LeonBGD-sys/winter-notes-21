@@ -12,6 +12,7 @@ body {margin:0; font-family:Arial,sans-serif; background:#000; color:#fff; text-
 .hero-text {position:absolute; top:20px; left:50%; transform:translateX(-50%); text-shadow:2px 2px 6px #000; z-index:3;}
 .hero-text h1 {font-size:2.8em; margin:0;}
 .hero-text p {font-size:1.2em; margin-top:5px;}
+#hero-countdown {margin-top:10px; font-size:1.2em; font-style:italic; color:#ffb6c1;}
 #anniversary-text {margin-top:12px; font-size:1.5em; color:#ffb6c1; font-weight:bold; animation:fadeInUp 2s ease forwards;}
 .hint {position:relative; z-index:3; margin:60px auto; max-width:800px; padding:0 20px; opacity:1; transform:translateY(0);}
 .hint img {width:100%; border-radius:12px; margin-top:15px;}
@@ -30,6 +31,7 @@ body {margin:0; font-family:Arial,sans-serif; background:#000; color:#fff; text-
   <div class="hero-text">
     <h1>Für dich ❤️</h1>
     <p>Jeden Monat ein kleiner Hinweis…</p>
+    <div id="hero-countdown"></div>
     <div id="anniversary-text"></div>
   </div>
 </div>
@@ -72,13 +74,13 @@ if(!hintDates){
 }
 hintDates = JSON.parse(localStorage.getItem("hintDates"));
 
-// ===== HELPER =====
+// ===== HILFSFUNKTION =====
 function isAvailable(date){
-  const d = new Date(date.y,date.m,date.d,date.h||0);
+  const d = new Date(date.y, date.m, date.d, date.h||0,0,0);
   return new Date() >= d;
 }
 
-// ===== HINWEIS ANZEIGEN (Umschlag immer neu öffnen) =====
+// ===== HINWEISE ANZEIGEN =====
 function showHint(i){
   const container = document.getElementById("hints-container");
   let div = document.getElementById("hint-"+i);
@@ -89,51 +91,63 @@ function showHint(i){
     container.appendChild(div);
   }
   const hint = hints[i];
-  div.innerHTML = `<div class="envelope"><span>💌 Öffne den Hinweis</span></div>`;
+  // Countdown direkt erstellen
+  div.innerHTML = `<div class="envelope"><span>💌 Öffne den Hinweis</span></div><div class="hint-countdown"></div>`;
   div.querySelector(".envelope").addEventListener("click", ()=>{
     div.innerHTML = `<h2>${hint.title}</h2><p>${hint.text}</p><img src="${hint.img}"><div class="hint-countdown"></div>`;
   });
 }
 
-// ===== ALLE VERFÜGBAREN HINWEISE ANZEIGEN =====
+// Alle verfügbaren Hinweise anzeigen
 hints.forEach((_, i)=>{
   if(i===0 || isAvailable(hintDates[i])){
     showHint(i);
   }
 });
 
-// ===== COUNTDOWN UNTER JEDEM HINWEIS =====
-function updateHeroCountdown() {
+// ===== COUNTDOWN OBEN (NÄCHSTER HINWEIS) =====
+function updateHeroCountdown(){
   const now = new Date();
-  // Nächster Hinweis, dessen Datum > jetzt
-  let next = hintDates.find(dateObj => {
-    const d = new Date(dateObj.y, dateObj.m, dateObj.d, dateObj.h||0, 0, 0);
-    return d > now;
-  });
-
   const heroCountdown = document.getElementById("hero-countdown");
-  if (!next) {
+  // nächster Hinweis nach jetzt
+  const next = hintDates.find(d=> new Date(d.y,d.m,d.d,d.h||0,0,0) > now);
+  if(!next){
     heroCountdown.innerText = "Alle Hinweise geöffnet ❤️";
     return;
   }
-
-  const nextDate = new Date(next.y, next.m, next.d, next.h||0, 0, 0);
+  const nextDate = new Date(next.y,next.m,next.d,next.h||0,0,0);
   const diff = nextDate - now;
-
-  if(diff <= 0){
-    heroCountdown.innerText = "Ein neuer Hinweis ist verfügbar ❤️";
-    return;
-  }
-
+  if(diff<=0){ heroCountdown.innerText="Ein neuer Hinweis ist verfügbar ❤️"; return; }
   const days = Math.floor(diff / (1000*60*60*24));
   const hours = Math.floor((diff / (1000*60*60)) % 24);
   const minutes = Math.floor((diff / (1000*60)) % 60);
-
   heroCountdown.innerText = `Nächster Hinweis in ${days}d ${hours}h ${minutes}m ❤️`;
 }
-
 updateHeroCountdown();
 setInterval(updateHeroCountdown, 1000);
+
+// ===== COUNTDOWN UNTER JEDEM HINWEIS =====
+function updateHintCountdowns(){
+  const now = new Date();
+  hints.forEach((_,i)=>{
+    const div = document.getElementById("hint-"+i);
+    if(!div) return;
+    const countdownDiv = div.querySelector(".hint-countdown");
+    if(!countdownDiv) return;
+    const hintDate = new Date(hintDates[i].y,hintDates[i].m,hintDates[i].d,hintDates[i].h||0,0,0);
+    if(now >= hintDate){
+      countdownDiv.innerText = "Hinweis verfügbar ❤️";
+    } else {
+      const diff = hintDate - now;
+      const days = Math.floor(diff / (1000*60*60*24));
+      const hours = Math.floor((diff / (1000*60*60)) % 24);
+      const minutes = Math.floor((diff / (1000*60)) % 60);
+      countdownDiv.innerText = `Nächster Hinweis in ${days}d ${hours}h ${minutes}m ❤️`;
+    }
+  });
+}
+updateHintCountdowns();
+setInterval(updateHintCountdowns,1000);
 
 
 // ===== SLIDESHOW =====
