@@ -4,22 +4,22 @@
 <meta charset="UTF-8">
 <title>Für dich ❤️</title>
 <style>
-body { margin:0; font-family:Arial,sans-serif; background:#000; color:#fff; text-align:center; overflow-x:hidden; }
-#season-canvas { position:fixed; inset:0; pointer-events:none; z-index:1; }
-.hero-container { position:relative; height:100vh; overflow:hidden; }
-.hero-slide { position:absolute; inset:0; background-size:contain; background-position:center; background-repeat:no-repeat; background-color:#000; opacity:0; transition: opacity 1.5s ease-in-out; z-index:0; }
-.hero-slide.active { opacity:1; }
-.hero-text { position:absolute; top:20px; left:50%; transform:translateX(-50%); text-shadow:2px 2px 6px #000; z-index:3; }
-.hero-text h1 { font-size:2.8em; margin:0; }
-.hero-text p { font-size:1.2em; margin-top:5px; }
-#hero-countdown { margin-top:10px; font-size:1.1em; font-style:italic; opacity:0.9; }
-#anniversary-text { margin-top:12px; font-size:1.5em; color:#ffb6c1; font-weight:bold; animation:fadeInUp 2s ease forwards; }
-.hint { position:relative; z-index:3; margin:60px auto; max-width:800px; padding:0 20px; opacity:0; transform:translateY(30px); animation:fadeInUp 1.2s ease forwards; }
-.hint img { width:100%; border-radius:12px; margin-top:15px; }
-.envelope { background:rgba(255,255,255,0.08); border:2px dashed #ffb6c1; border-radius:14px; padding:30px; cursor:pointer; transition:transform 0.3s ease, background 0.3s ease; }
-.envelope:hover { transform:scale(1.05); background:rgba(255,255,255,0.15); }
-.envelope span { font-size:1.4em; color:#ffb6c1; }
-@keyframes fadeInUp { to { opacity:1; transform:translateY(0); } }
+body {margin:0; font-family:Arial,sans-serif; background:#000; color:#fff; text-align:center; overflow-x:hidden;}
+#season-canvas {position:fixed; inset:0; pointer-events:none; z-index:1;}
+.hero-container {position:relative; height:100vh; overflow:hidden;}
+.hero-slide {position:absolute; inset:0; background-size:contain; background-position:center; background-repeat:no-repeat; background-color:#000; opacity:0; transition:opacity 1.5s ease-in-out; z-index:0;}
+.hero-slide.active {opacity:1;}
+.hero-text {position:absolute; top:20px; left:50%; transform:translateX(-50%); text-shadow:2px 2px 6px #000; z-index:3;}
+.hero-text h1 {font-size:2.8em; margin:0;}
+.hero-text p {font-size:1.2em; margin-top:5px;}
+#hero-countdown {margin-top:10px; font-size:1.1em; font-style:italic; opacity:0.9;}
+#anniversary-text {margin-top:12px; font-size:1.5em; color:#ffb6c1; font-weight:bold; animation:fadeInUp 2s ease forwards;}
+.hint {position:relative; z-index:3; margin:60px auto; max-width:800px; padding:0 20px; opacity:0; transform:translateY(30px); animation:fadeInUp 1.2s ease forwards;}
+.hint img {width:100%; border-radius:12px; margin-top:15px;}
+.envelope {background:rgba(255,255,255,0.08); border:2px dashed #ffb6c1; border-radius:14px; padding:30px; cursor:pointer; transition:transform 0.3s ease, background 0.3s ease;}
+.envelope:hover {transform:scale(1.05); background:rgba(255,255,255,0.15);}
+.envelope span {font-size:1.4em; color:#ffb6c1;}
+@keyframes fadeInUp {to {opacity:1; transform:translateY(0);}}
 </style>
 </head>
 <body>
@@ -60,13 +60,12 @@ const hints = [
 
 const hintsContainer = document.getElementById("hints-container");
 hintsContainer.style.display="block";
-
 const heroCountdown = document.getElementById("hero-countdown");
 const anniversaryText = document.getElementById("anniversary-text");
 const now = new Date();
 const currentYear = now.getFullYear();
 
-// ===== RANDOM HINT DATES EINMALIG =====
+// ===== HINT DATES EINMALIG RANDOM FÜR MONATE =====
 let hintDates = JSON.parse(localStorage.getItem("hintDates")||"null");
 if(!hintDates){
   hintDates=[];
@@ -74,20 +73,21 @@ if(!hintDates){
     let day;
     if(m===0) day=21; // Jahrestag
     else if(m===11) day=24; // 24.12
-    else day=Math.floor(Math.random()*28)+1;
-    hintDates.push(new Date(currentYear,m,day,m===11?20:0,0,0).toISOString());
+    else day=Math.floor(Math.random()*28)+1; // Zufallstag
+    hintDates.push({y:currentYear,m:m,d:day,h:m===11?20:0});
   }
   localStorage.setItem("hintDates",JSON.stringify(hintDates));
 }
-hintDates = hintDates.map(d=>new Date(d));
+hintDates = JSON.parse(localStorage.getItem("hintDates"));
 
-// ===== CURRENT HINT INDEX =====
+// ===== CURRENT HINT & OPENED =====
 let currentHintIndex = parseInt(localStorage.getItem("currentHintIndex")||0);
+let openedHints = JSON.parse(localStorage.getItem("openedHints") || "[]");
 
 // ===== HELPER =====
 function isTodayOrAfter(date){
-  const today=new Date(); today.setHours(0,0,0,0);
-  const d=new Date(date); d.setHours(0,0,0,0);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const d = new Date(date.y,date.m,date.d,date.h||0,0,0,0);
   return today>=d;
 }
 
@@ -97,28 +97,32 @@ function showHint(i){
   const hint=hints[i];
   const div=document.createElement("div");
   div.className="hint";
-  div.innerHTML=`<div class="envelope"><span>💌 Öffne den Hinweis</span></div>`;
-  hintsContainer.appendChild(div);
-  div.querySelector(".envelope").addEventListener("click",()=>{
+
+  if(openedHints.includes(i)){
     div.innerHTML=`<h2>${hint.title}</h2><p>${hint.text}</p><img src="${hint.img}">`;
-    if(i===currentHintIndex){ currentHintIndex++; localStorage.setItem("currentHintIndex",currentHintIndex); }
-  });
+  } else {
+    div.innerHTML=`<div class="envelope"><span>💌 Öffne den Hinweis</span></div>`;
+    div.querySelector(".envelope").addEventListener("click",()=>{
+      div.innerHTML=`<h2>${hint.title}</h2><p>${hint.text}</p><img src="${hint.img}">`;
+      if(!openedHints.includes(i)) { openedHints.push(i); localStorage.setItem("openedHints", JSON.stringify(openedHints)); }
+      if(i===currentHintIndex){ currentHintIndex++; localStorage.setItem("currentHintIndex",currentHintIndex);}
+    });
+  }
+  hintsContainer.appendChild(div);
 }
 
 // ===== CHECK & SHOW HINT HEUTE =====
-function checkAndShowHint(){
-  if(currentHintIndex<hints.length && isTodayOrAfter(hintDates[currentHintIndex])){
-    showHint(currentHintIndex);
-  }
+if(currentHintIndex<hints.length && isTodayOrAfter(hintDates[currentHintIndex])){
+  showHint(currentHintIndex);
 }
-checkAndShowHint();
 
 // ===== COUNTDOWN =====
 function updateCountdown(){
   if(currentHintIndex>=hints.length){ heroCountdown.innerHTML="Alle Hinweise geöffnet ❤️"; return; }
-  const now=new Date();
-  const nextHintDate=hintDates[currentHintIndex];
-  let diff=nextHintDate-now;
+  const now = new Date();
+  const next = hintDates[currentHintIndex];
+  const nextDate = new Date(next.y,next.m,next.d,next.h||0);
+  let diff = nextDate - now;
   if(diff<=0){ showHint(currentHintIndex); heroCountdown.innerHTML="Ein neuer Hinweis ist verfügbar ❤️"; return; }
   const days=Math.floor(diff/(1000*60*60*24));
   const hours=Math.floor((diff/(1000*60*60))%24);
