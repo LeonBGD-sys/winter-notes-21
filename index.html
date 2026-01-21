@@ -71,7 +71,7 @@ const anniversaryText = document.getElementById("anniversary-text");
 const now = new Date();
 const currentYear = now.getFullYear();
 
-// ====== HINT DATEN ======
+// ====== HINT DATEN (einmal random pro Monat) ======
 let hintDates = JSON.parse(localStorage.getItem("hintDates")||"null");
 if(!hintDates){
   hintDates=[];
@@ -84,7 +84,7 @@ if(!hintDates){
   }
   localStorage.setItem("hintDates",JSON.stringify(hintDates));
 }
-hintDates=hintDates.map(d=>new Date(d));
+hintDates = hintDates.map(d=>new Date(d));
 
 // ====== CURRENT HINT ======
 let currentHintIndex = parseInt(localStorage.getItem("currentHintIndex")||0);
@@ -96,13 +96,11 @@ function showHint(i){
   const div=document.createElement("div");
   div.className="hint";
 
-  // Umschlag
   div.innerHTML=`<div class="envelope"><span>💌 Öffne den Hinweis</span></div>`;
   hintsContainer.appendChild(div);
 
   div.querySelector(".envelope").addEventListener("click",()=>{
     div.innerHTML=`<h2>${hint.title}</h2><p>${hint.text}</p><img src="${hint.img}">`;
-    // Index erst nach Öffnen erhöhen
     if(i===currentHintIndex){
       currentHintIndex++;
       localStorage.setItem("currentHintIndex",currentHintIndex);
@@ -112,12 +110,16 @@ function showHint(i){
 
 // ====== COUNTDOWN ======
 function updateCountdown(){
-  if(currentHintIndex>=hints.length) return;
+  if(currentHintIndex >= hints.length) {
+    heroCountdown.innerHTML = "Alle Hinweise geöffnet ❤️";
+    return;
+  }
   const now=new Date();
   const nextHintDate=hintDates[currentHintIndex];
   let diff=nextHintDate-now;
   if(diff<=0){
     showHint(currentHintIndex);
+    heroCountdown.innerHTML="Ein neuer Hinweis ist verfügbar ❤️";
     return;
   }
   const days=Math.floor(diff/(1000*60*60*24));
@@ -206,9 +208,7 @@ if(now.getDate()===21 && now.getMonth()===0){ anniversaryText.innerText="Alles L
 if(now.getDate()===10 && now.getMonth()===3){ anniversaryText.innerText="Alles Gute zum Geburtstag mein Schatz 🎂"; }
 
 // ====== START HEUTIGER HINWEIS ======
-if(currentHintIndex===0 && now.getDate()===21 && now.getMonth()===0){
-  showHint(0);
-}
+checkAndShowHint();
 </script>
 </body>
 </html>
