@@ -60,13 +60,13 @@ const hints = [
 
 // ===== HINWEISDATEN EINMALIG GENERIEREN UND SPEICHERN =====
 const currentYear = 2026;
-let hintDates = JSON.parse(localStorage.getItem("hintDates")||"null");
+let hintDates = JSON.parse(localStorage.getItem("hintDates") || "null");
 if(!hintDates){
   hintDates = hints.map((_, i) => {
-    let day = Math.floor(Math.random()*28)+1;
-    let hour = 0;
-    if(i===0) day=21; // erster Hinweis heute
-    if(i===11){ day=24; hour=20; } // Dezember fix
+    let day, hour = 0;
+    if(i===0) day=21; // Hinweis01 heute
+    else if(i===11){ day=24; hour=20; } // Hinweis12 24.12 20:00
+    else { day = Math.floor(Math.random()*28)+1; } // Hinweis02-11 zufällig
     return {y:currentYear, m:i, d:day, h:hour};
   });
   localStorage.setItem("hintDates", JSON.stringify(hintDates));
@@ -79,7 +79,7 @@ function isAvailable(date){
   return new Date() >= d;
 }
 
-// ===== HINWEIS ANZEIGEN (immer Umschlag neu öffnen) =====
+// ===== HINWEIS ANZEIGEN (Umschlag immer neu öffnen) =====
 function showHint(i){
   const container = document.getElementById("hints-container");
   let div = document.getElementById("hint-"+i);
@@ -90,8 +90,6 @@ function showHint(i){
     container.appendChild(div);
   }
   const hint = hints[i];
-
-  // Umschlag immer neu öffnen
   div.innerHTML = `<div class="envelope"><span>💌 Öffne den Hinweis</span></div>`;
   div.querySelector(".envelope").addEventListener("click", ()=>{
     div.innerHTML = `<h2>${hint.title}</h2><p>${hint.text}</p><img src="${hint.img}">`;
@@ -101,14 +99,15 @@ function showHint(i){
 // ===== ALLE VERFÜGBAREN HINWEISE ANZEIGEN =====
 hints.forEach((_, i)=>{
   if(i===0 || isAvailable(hintDates[i])){
-    showHint(i); // Hinweis01 wird immer angezeigt
+    showHint(i);
   }
 });
 
 // ===== COUNTDOWN =====
 function updateCountdown(){
   const now = new Date();
-  let next = hintDates.find((_,i)=> new Date(hintDates[i].y,hintDates[i].m,hintDates[i].d,hintDates[i].h||0) > now );
+  // Nächster Hinweis, dessen Datum > jetzt
+  let next = hintDates.find(dateObj => new Date(dateObj.y,dateObj.m,dateObj.d,dateObj.h||0) > now );
   if(!next){ 
     document.getElementById("hero-countdown").innerText="Alle Hinweise geöffnet ❤️"; 
     return; 
@@ -117,8 +116,7 @@ function updateCountdown(){
   const days = Math.floor(diff / (1000*60*60*24));
   const hours = Math.floor((diff / (1000*60*60)) % 24);
   const minutes = Math.floor((diff / (1000*60)) % 60);
-  const seconds = Math.floor((diff / 1000) % 60);
-  document.getElementById("hero-countdown").innerText = `Nächster Hinweis in ${days}d ${hours}h ${minutes}m ${seconds}s ❤️`;
+  document.getElementById("hero-countdown").innerText = `Nächster Hinweis in ${days}d ${hours}h ${minutes}m ❤️`;
 }
 updateCountdown();
 setInterval(updateCountdown, 1000);
@@ -154,7 +152,7 @@ document.addEventListener("mousemove", e=>{ mouseX=e.clientX; mouseY=e.clientY; 
 
 function getSeason(){
   const now = new Date();
-  if(now.getDate()===21 && now.getMonth()===0) return "hearts"; // Jahrestag
+  if(now.getDate()===21 && now.getMonth()===0) return "hearts";
   if(now.getDate()===10 && now.getMonth()===3) return "birthday";
   const m = now.getMonth();
   if(m<=2) return "winter";
