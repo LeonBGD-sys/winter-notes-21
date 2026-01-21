@@ -14,7 +14,7 @@ body {margin:0; font-family:Arial,sans-serif; background:#000; color:#fff; text-
 .hero-text p {font-size:1.2em; margin-top:5px;}
 #hero-countdown {margin-top:10px; font-size:1.1em; font-style:italic; opacity:0.9;}
 #anniversary-text {margin-top:12px; font-size:1.5em; color:#ffb6c1; font-weight:bold; animation:fadeInUp 2s ease forwards;}
-.hint {position:relative; z-index:3; margin:60px auto; max-width:800px; padding:0 20px; opacity:0; transform:translateY(30px); animation:fadeInUp 1.2s ease forwards;}
+.hint {position:relative; z-index:3; margin:60px auto; max-width:800px; padding:0 20px; opacity:1; transform:translateY(0);}
 .hint img {width:100%; border-radius:12px; margin-top:15px;}
 .envelope {background:rgba(255,255,255,0.08); border:2px dashed #ffb6c1; border-radius:14px; padding:30px; cursor:pointer; transition:transform 0.3s ease, background 0.3s ease;}
 .envelope:hover {transform:scale(1.05); background:rgba(255,255,255,0.15);}
@@ -58,24 +58,18 @@ const hints = [
   { title:"24. Dezember 🎄❤️", text:"Der letzte Hinweis…", img:"hinweis12.png" }
 ];
 
-const hintsContainer = document.getElementById("hints-container");
-const heroCountdown = document.getElementById("hero-countdown");
-const anniversaryText = document.getElementById("anniversary-text");
-const now = new Date();
-const currentYear = now.getFullYear();
-
-// ===== HINT DATES EINMALIG ZUFÄLLIG GENERIEREN =====
+// ===== ZUFÄLLIGE HINWEISDATEN =====
+const currentYear = 2026;
 let hintDates = JSON.parse(localStorage.getItem("hintDates")||"null");
 if(!hintDates){
-  hintDates=[];
-  for(let m=0;m<12;m++){
-    let day,hour=0;
-    if(m===0) day=21; // 21. Januar
-    else if(m===11){ day=24; hour=20; } // 24. Dezember 20 Uhr
-    else day=Math.floor(Math.random()*28)+1; // Zufallstag
-    hintDates.push({y:currentYear,m:m,d:day,h:hour});
-  }
-  localStorage.setItem("hintDates",JSON.stringify(hintDates));
+  hintDates = hints.map((_, i) => {
+    let day = Math.floor(Math.random()*28)+1;
+    let hour = 0;
+    if(i===0) day=21; // 21. Januar
+    if(i===11){ day=24; hour=20; } // 24. Dezember 20 Uhr
+    return {y:currentYear, m:i, d:day, h:hour};
+  });
+  localStorage.setItem("hintDates", JSON.stringify(hintDates));
 }
 hintDates = JSON.parse(localStorage.getItem("hintDates"));
 
@@ -83,63 +77,55 @@ hintDates = JSON.parse(localStorage.getItem("hintDates"));
 let openedHints = JSON.parse(localStorage.getItem("openedHints") || "[]");
 
 // ===== HELPER =====
-function isTodayOrAfter(date){
-  const today = new Date(); today.setHours(0,0,0,0);
-  const d = new Date(date.y,date.m,date.d,date.h||0);
-  return today>=d;
+function isAvailable(date){
+  return new Date(date.y,date.m,date.d,date.h||0) <= new Date();
 }
 
 // ===== SHOW HINT =====
 function showHint(i){
-  const hint=hints[i];
-  let div=document.getElementById(`hint-${i}`);
+  const container = document.getElementById("hints-container");
+  let div = document.getElementById("hint-"+i);
   if(!div){
-    div=document.createElement("div");
-    div.id=`hint-${i}`;
-    div.className="hint";
-    hintsContainer.appendChild(div);
+    div = document.createElement("div");
+    div.id = "hint-"+i;
+    div.className = "hint";
+    container.appendChild(div);
   }
+  const hint = hints[i];
 
   if(openedHints.includes(i)){
-    div.innerHTML=`<h2>${hint.title}</h2><p>${hint.text}</p><img src="${hint.img}">`;
+    div.innerHTML = `<h2>${hint.title}</h2><p>${hint.text}</p><img src="${hint.img}">`;
   } else {
-    div.innerHTML=`<div class="envelope"><span>💌 Öffne den Hinweis</span></div>`;
-    div.querySelector(".envelope").addEventListener("click",()=>{
-      div.innerHTML=`<h2>${hint.title}</h2><p>${hint.text}</p><img src="${hint.img}">`;
-      if(!openedHints.includes(i)) { 
-        openedHints.push(i); 
-        localStorage.setItem("openedHints", JSON.stringify(openedHints)); 
-      }
+    div.innerHTML = `<div class="envelope"><span>💌 Öffne den Hinweis</span></div>`;
+    div.querySelector(".envelope").addEventListener("click", ()=>{
+      div.innerHTML = `<h2>${hint.title}</h2><p>${hint.text}</p><img src="${hint.img}">`;
+      openedHints.push(i);
+      localStorage.setItem("openedHints", JSON.stringify(openedHints));
     });
   }
 }
 
 // ===== ALLE VERFÜGBAREN HINWEISE ANZEIGEN =====
-function showAvailableHints(){
-  for(let i=0;i<hints.length;i++){
-    if(isTodayOrAfter(hintDates[i])){
-      showHint(i);
-    }
+hints.forEach((_,i)=>{
+  if(isAvailable(hintDates[i])){
+    showHint(i);
   }
-}
-showAvailableHints();
+});
 
 // ===== COUNTDOWN =====
 function updateCountdown(){
-  let nextHintIndex = hints.findIndex((_,i)=>!openedHints.includes(i) && new Date(hintDates[i].y,hintDates[i].m,hintDates[i].d,hintDates[i].h||0) > new Date());
-  if(nextHintIndex===-1){ 
-    heroCountdown.innerHTML="Alle Hinweise geöffnet ❤️"; 
+  const now = new Date();
+  let next = hintDates.find((_,i)=>!openedHints.includes(i) && new Date(hintDates[i].y,hintDates[i].m,hintDates[i].d,hintDates[i].h||0) > now);
+  if(!next){ 
+    document.getElementById("hero-countdown").innerText="Alle Hinweise geöffnet ❤️"; 
     return; 
   }
-  const next = hintDates[nextHintIndex];
-  const nextDate = new Date(next.y,next.m,next.d,next.h||0);
-  let diff = nextDate - new Date();
-  if(diff<=0){ showHint(nextHintIndex); heroCountdown.innerHTML="Ein neuer Hinweis ist verfügbar ❤️"; return; }
-  const days=Math.floor(diff/(1000*60*60*24));
-  const hours=Math.floor((diff/(1000*60*60))%24);
-  const minutes=Math.floor((diff/(1000*60))%60);
-  const seconds=Math.floor((diff/1000)%60);
-  heroCountdown.innerHTML=`Nächster Hinweis in ${days}d ${hours}h ${minutes}m ${seconds}s ❤️`;
+  let diff = new Date(next.y,next.m,next.d,next.h||0) - now;
+  let days = Math.floor(diff / (1000*60*60*24));
+  let hours = Math.floor((diff / (1000*60*60)) % 24);
+  let minutes = Math.floor((diff / (1000*60)) % 60);
+  let seconds = Math.floor((diff/1000)%60);
+  document.getElementById("hero-countdown").innerText = `Nächster Hinweis in ${days}d ${hours}h ${minutes}m ${seconds}s ❤️`;
 }
 updateCountdown();
 setInterval(updateCountdown,1000);
@@ -163,27 +149,31 @@ setInterval(()=>{ slides[cur].classList.remove("active"); cur=(cur+1)%slides.len
 let started=false;
 document.addEventListener("click",()=>{if(!started){document.getElementById("bg-music").play();started=true;}});
 
-// ===== SAISONPARTIKEL + MAUS + MOOD =====
+// ===== PARTIKEL / SAISON =====
 const canvas=document.getElementById("season-canvas");
 const ctx=canvas.getContext("2d");
 function resizeCanvas(){canvas.width=innerWidth;canvas.height=innerHeight;}
 window.addEventListener("resize",resizeCanvas);resizeCanvas();
-const hour=now.getHours();
-let mood=hour<6||hour>=22?0.5:hour<10?0.8:hour<18?1:0.7;
+
 let particles=[];
 let mouseX=canvas.width/2,mouseY=canvas.height/2;
 document.addEventListener("mousemove",e=>{mouseX=e.clientX; mouseY=e.clientY;});
+
+const nowHour = new Date().getHours();
+let mood = nowHour<6||nowHour>=22?0.5:nowHour<10?0.8:nowHour<18?1:0.7;
+
 function getSeason(){
-  const now=new Date();
-  if(now.getDate()===21 && now.getMonth()===0) return "hearts";
+  const now = new Date();
+  if(now.getDate()===21 && now.getMonth()===0) return "hearts"; // Jahrestag
   if(now.getDate()===10 && now.getMonth()===3) return "birthday";
-  const m=now.getMonth();
+  const m = now.getMonth();
   if(m<=2) return "winter";
   if(m<=5) return "spring";
   if(m<=8) return "summer";
   return "autumn";
 }
 const season=getSeason();
+
 function createParticle(){
   let color;
   if(season==="hearts") color="rgba(255,80,120,0.8)";
@@ -193,14 +183,33 @@ function createParticle(){
   else color=`rgba(200,120,40,${0.7*mood})`;
   return {x:Math.random()*canvas.width,y:Math.random()*canvas.height,size:Math.random()*5+3,speedY:Math.random()*1.2+0.5,speedX:(Math.random()-0.5)*0.6,color};
 }
+
 for(let i=0;i<140;i++) particles.push(createParticle());
-function drawHeart(x,y,size){ ctx.beginPath(); ctx.moveTo(x,y); ctx.bezierCurveTo(x-size/2,y-size/2,x-size,y+size/3,x,y+size); ctx.bezierCurveTo(x+size,y+size/3,x+size/2,y-size/2,x,y); ctx.fill();}
-function animate(){ ctx.clearRect(0,0,canvas.width,canvas.height); particles.forEach(p=>{ let dx=p.x-mouseX,dy=p.y-mouseY,dist=Math.sqrt(dx*dx+dy*dy); if(dist<100){p.x+=dx/20;p.y+=dy/20;} p.y+=p.speedY; p.x+=p.speedX; if(p.y>canvas.height){p.y=0;p.x=Math.random()*canvas.width;} if(p.x>canvas.width){p.x=0;} if(p.x<0){p.x=canvas.width;} ctx.fillStyle=p.color; if(season==="hearts") drawHeart(p.x,p.y,p.size); else{ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();} }); requestAnimationFrame(animate);}
+
+function drawHeart(x,y,size){ ctx.beginPath(); ctx.moveTo(x,y); ctx.bezierCurveTo(x-size/2,y-size/2,x-size,y+size/3,x,y+size); ctx.bezierCurveTo(x+size,y+size/3,x+size/2,y-size/2,x,y); ctx.fill(); }
+
+function animate(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  particles.forEach(p=>{
+    let dx=p.x-mouseX,dy=p.y-mouseY,dist=Math.sqrt(dx*dx+dy*dy);
+    if(dist<100){p.x+=dx/20;p.y+=dy/20;}
+    p.y+=p.speedY; p.x+=p.speedX;
+    if(p.y>canvas.height){p.y=0; p.x=Math.random()*canvas.width;}
+    if(p.x>canvas.width){p.x=0;}
+    if(p.x<0){p.x=canvas.width;}
+    ctx.fillStyle=p.color;
+    if(season==="hearts") drawHeart(p.x,p.y,p.size);
+    else{ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,Math.PI*2);ctx.fill();}
+  });
+  requestAnimationFrame(animate);
+}
 animate();
 
-// ===== ANNIVERSARY & BIRTHDAY =====
-if(now.getDate()===21 && now.getMonth()===0){ anniversaryText.innerText="Alles Liebe zum Jahrestag ❤️"; }
-if(now.getDate()===10 && now.getMonth()===3){ anniversaryText.innerText="Alles Gute zum Geburtstag mein Schatz 🎂"; }
+// ===== ANNIVERSARY / BIRTHDAY TEXT =====
+const anniversaryText = document.getElementById("anniversary-text");
+const today = new Date();
+if(today.getDate()===21 && today.getMonth()===0) anniversaryText.innerText="Alles Liebe zum Jahrestag ❤️";
+if(today.getDate()===10 && today.getMonth()===3) anniversaryText.innerText="Alles Gute zum Geburtstag mein Schatz 🎂";
 
 </script>
 </body>
