@@ -73,16 +73,13 @@ if(!hintDates){
 }
 hintDates = JSON.parse(localStorage.getItem("hintDates"));
 
-// ===== GEÖFFNETE HINWEISE =====
-let openedHints = JSON.parse(localStorage.getItem("openedHints")||"[]");
-
 // ===== HELPER =====
 function isAvailable(date){
   const d = new Date(date.y,date.m,date.d,date.h||0);
   return new Date() >= d;
 }
 
-// ===== HINWEIS ANZEIGEN =====
+// ===== HINWEIS ANZEIGEN (immer Umschlag neu öffnen) =====
 function showHint(i){
   const container = document.getElementById("hints-container");
   let div = document.getElementById("hint-"+i);
@@ -94,18 +91,11 @@ function showHint(i){
   }
   const hint = hints[i];
 
-  if(openedHints.includes(i)){
+  // Umschlag immer neu öffnen
+  div.innerHTML = `<div class="envelope"><span>💌 Öffne den Hinweis</span></div>`;
+  div.querySelector(".envelope").addEventListener("click", ()=>{
     div.innerHTML = `<h2>${hint.title}</h2><p>${hint.text}</p><img src="${hint.img}">`;
-  } else {
-    div.innerHTML = `<div class="envelope"><span>💌 Öffne den Hinweis</span></div>`;
-    div.querySelector(".envelope").addEventListener("click", ()=>{
-      div.innerHTML = `<h2>${hint.title}</h2><p>${hint.text}</p><img src="${hint.img}">`;
-      if(!openedHints.includes(i)){
-        openedHints.push(i);
-        localStorage.setItem("openedHints", JSON.stringify(openedHints));
-      }
-    });
-  }
+  });
 }
 
 // ===== ALLE VERFÜGBAREN HINWEISE ANZEIGEN =====
@@ -118,7 +108,7 @@ hints.forEach((_, i)=>{
 // ===== COUNTDOWN =====
 function updateCountdown(){
   const now = new Date();
-  let next = hintDates.find((_,i)=>!openedHints.includes(i) && new Date(hintDates[i].y,hintDates[i].m,hintDates[i].d,hintDates[i].h||0) > now);
+  let next = hintDates.find((_,i)=> new Date(hintDates[i].y,hintDates[i].m,hintDates[i].d,hintDates[i].h||0) > now );
   if(!next){ 
     document.getElementById("hero-countdown").innerText="Alle Hinweise geöffnet ❤️"; 
     return; 
