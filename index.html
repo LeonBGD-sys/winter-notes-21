@@ -14,6 +14,7 @@ body {
   overflow-x: hidden;
 }
 
+/* ===== SEASON CANVAS ===== */
 #season-canvas {
   position: fixed;
   inset: 0;
@@ -21,6 +22,7 @@ body {
   z-index: 1;
 }
 
+/* ===== HERO ===== */
 .hero-container {
   position: relative;
   height: 100vh;
@@ -39,9 +41,7 @@ body {
   z-index: 0;
 }
 
-.hero-slide.active {
-  opacity: 1;
-}
+.hero-slide.active { opacity: 1; }
 
 .hero-text {
   position: absolute;
@@ -52,70 +52,19 @@ body {
   z-index: 3;
 }
 
-.hero-text h1 {
-  font-size: 2.8em;
-  margin: 0;
-}
+.hero-text h1 { font-size: 2.8em; margin: 0; }
+.hero-text p { font-size: 1.2em; margin-top: 5px; }
+#hero-countdown { margin-top: 10px; font-size: 1.1em; font-style: italic; opacity: 0.9; }
+#anniversary-text { margin-top: 12px; font-size: 1.5em; color: #ffb6c1; font-weight: bold; animation: fadeInUp 2s ease forwards; }
 
-.hero-text p {
-  font-size: 1.2em;
-  margin-top: 5px;
-}
+/* ===== HINWEISE ===== */
+.hint { position: relative; z-index: 3; margin: 60px auto; max-width: 800px; padding: 0 20px; opacity: 0; transform: translateY(30px); animation: fadeInUp 1.2s ease forwards; }
+.hint img { width: 100%; border-radius: 12px; margin-top: 15px; }
+.envelope { background: rgba(255,255,255,0.08); border: 2px dashed #ffb6c1; border-radius: 14px; padding: 30px; cursor: pointer; transition: transform 0.3s ease, background 0.3s ease; }
+.envelope:hover { transform: scale(1.05); background: rgba(255,255,255,0.15); }
+.envelope span { font-size: 1.4em; color: #ffb6c1; }
 
-#hero-countdown {
-  margin-top: 10px;
-  font-size: 1.1em;
-  font-style: italic;
-  opacity: 0.9;
-}
-
-#anniversary-text {
-  margin-top: 12px;
-  font-size: 1.5em;
-  color: #ffb6c1;
-  font-weight: bold;
-  animation: fadeInUp 2s ease forwards;
-}
-
-.hint {
-  position: relative;
-  z-index: 3;
-  margin: 60px auto;
-  max-width: 800px;
-  padding: 0 20px;
-  opacity: 0;
-  transform: translateY(30px);
-  animation: fadeInUp 1.2s ease forwards;
-}
-
-.hint img {
-  width: 100%;
-  border-radius: 12px;
-  margin-top: 15px;
-}
-
-.envelope {
-  background: rgba(255,255,255,0.08);
-  border: 2px dashed #ffb6c1;
-  border-radius: 14px;
-  padding: 30px;
-  cursor: pointer;
-  transition: transform 0.3s ease, background 0.3s ease;
-}
-
-.envelope:hover {
-  transform: scale(1.05);
-  background: rgba(255,255,255,0.15);
-}
-
-.envelope span {
-  font-size: 1.4em;
-  color: #ffb6c1;
-}
-
-@keyframes fadeInUp {
-  to { opacity: 1; transform: translateY(0); }
-}
+@keyframes fadeInUp { to { opacity:1; transform:translateY(0); } }
 </style>
 </head>
 <body>
@@ -138,133 +87,128 @@ body {
 </audio>
 
 <script>
-/*************** HAUPTLOGIK ***************/
-const ANNIVERSARY_DATE = "2026-01-21";
-
-/* Jahrestagtext */
-const todayStr = new Date().toISOString().split("T")[0];
-const isAnniversary = todayStr === ANNIVERSARY_DATE;
-if(isAnniversary){
-  document.getElementById("anniversary-text").innerText =
-    "Alles Liebe zum Jahrestag ❤️";
-}
-
-/*************** HINWEISE ***************/
+/*************** DATEN & KONSTANTEN ***************/
 const hints = [
-  { title: "Januar ❤️", text: "Hier kommt dein erster Hinweis…", img: "hinweis01.png" },
-  { title: "Februar ❤️", text: "Der zweite kleine Hinweis wartet…", img: "hinweis02.png" },
-  { title: "März ❤️", text: "Ein neuer Monat, ein neuer Hinweis…", img: "hinweis03.png" },
-  { title: "April ❤️", text: "Vielleicht erinnerst du dich…", img: "hinweis04.png" },
-  { title: "Mai ❤️", text: "Ein weiterer Hinweis für dich…", img: "hinweis05.png" },
-  { title: "Juni ❤️", text: "Halbzeit…", img: "hinweis06.png" },
-  { title: "Juli ❤️", text: "Sommer & Erinnerungen…", img: "hinweis07.png" },
-  { title: "August ❤️", text: "Warm wie dieser Monat…", img: "hinweis08.png" },
-  { title: "September ❤️", text: "Der Herbst kommt näher…", img: "hinweis09.png" },
-  { title: "Oktober ❤️", text: "Ein geheimnisvoller Hinweis…", img: "hinweis10.png" },
-  { title: "November ❤️", text: "Fast am Ziel…", img: "hinweis11.png" },
-  { title: "24. Dezember 🎄❤️", text: "Der letzte Hinweis…", img: "hinweis12.png" }
+  { title:"Januar ❤️", text:"Hier kommt dein erster Hinweis…", img:"hinweis01.png" },
+  { title:"Februar ❤️", text:"Der zweite kleine Hinweis wartet…", img:"hinweis02.png" },
+  { title:"März ❤️", text:"Ein neuer Monat, ein neuer Hinweis…", img:"hinweis03.png" },
+  { title:"April ❤️", text:"Vielleicht erinnerst du dich…", img:"hinweis04.png" },
+  { title:"Mai ❤️", text:"Ein weiterer Hinweis für dich…", img:"hinweis05.png" },
+  { title:"Juni ❤️", text:"Halbzeit…", img:"hinweis06.png" },
+  { title:"Juli ❤️", text:"Sommer & Erinnerungen…", img:"hinweis07.png" },
+  { title:"August ❤️", text:"Warm wie dieser Monat…", img:"hinweis08.png" },
+  { title:"September ❤️", text:"Der Herbst kommt näher…", img:"hinweis09.png" },
+  { title:"Oktober ❤️", text:"Ein geheimnisvoller Hinweis…", img:"hinweis10.png" },
+  { title:"November ❤️", text:"Fast am Ziel…", img:"hinweis11.png" },
+  { title:"24. Dezember 🎄❤️", text:"Der letzte Hinweis…", img:"hinweis12.png" }
 ];
 
 const hintsContainer = document.getElementById("hints-container");
-const month = new Date().getMonth();
-let storedIndex = localStorage.getItem("monthlyHintIndex");
-let hintIndex;
-
-if(storedIndex && storedIndex.split(":")[0] == month){
-  hintIndex = parseInt(storedIndex.split(":")[1]);
-} else {
-  hintIndex = Math.floor(Math.random() * hints.length);
-  localStorage.setItem("monthlyHintIndex", month + ":" + hintIndex);
-}
-const hint = hints[hintIndex];
-
-hintsContainer.innerHTML = "";
-const hintDiv = document.createElement("div");
-hintDiv.className = "hint";
-hintDiv.innerHTML = `<div class="envelope" id="envelope"><span>💌 Öffne den Hinweis für diesen Monat</span></div>`;
-hintsContainer.appendChild(hintDiv);
-
-hintDiv.querySelector("#envelope").addEventListener("click", () => {
-  hintDiv.innerHTML = `<h2>${hint.title}</h2><p>${hint.text}</p><img src="${hint.img}">`;
-});
-
-/*************** COUNTDOWN ZUM NÄCHSTEN HINWEIS ***************/
 const heroCountdown = document.getElementById("hero-countdown");
+const anniversaryText = document.getElementById("anniversary-text");
 
-const hintDates = [
-  "2026-01-21", "2026-02-21", "2026-03-21", "2026-04-21",
-  "2026-05-21", "2026-06-21", "2026-07-21", "2026-08-21",
-  "2026-09-21", "2026-10-21", "2026-11-21", "2026-12-21"
-];
+const hintDates = []; 
+const now = new Date();
+const currentYear = now.getFullYear();
 
+// ======== Zufällige Tage für Hinweise pro Monat ========
+for(let m=0; m<12; m++){
+  let day;
+  if(m === 0) day = 21; // Januar fix am Jahrestag
+  else if(m === 11) day = 24; // Dezember fix 24.12
+  else day = Math.floor(Math.random()*(28-1+1)+1); // 1–28 zufällig
+  hintDates.push(new Date(currentYear, m, day, m===11?20:0, 0, 0)); // Dez = 20 Uhr
+}
+
+// ======== Jahrestag Text & Herzregen ========
+if(now.getDate()===21 && now.getMonth()===0){
+  anniversaryText.innerText = "Alles Liebe zum Jahrestag ❤️";
+}
+
+/*************** HINWEIS-LOGIK ***************/
+let currentHintIndex = localStorage.getItem("currentHintIndex");
+currentHintIndex = currentHintIndex ? parseInt(currentHintIndex) : 0;
+
+function showHint(i){
+  hintsContainer.innerHTML = "";
+  const hint = hints[i];
+  const div = document.createElement("div");
+  div.className = "hint";
+  div.innerHTML = `<div class="envelope" id="envelope"><span>💌 Öffne den Hinweis</span></div>`;
+  hintsContainer.appendChild(div);
+
+  div.querySelector("#envelope").addEventListener("click", ()=>{
+    div.innerHTML = `<h2>${hint.title}</h2><p>${hint.text}</p><img src="${hint.img}">`;
+  });
+}
+
+/*************** COUNTDOWN-LOGIK ***************/
 function updateCountdown(){
   const now = new Date();
-  let nextIndex = hintDates.findIndex(d => new Date(d) > now);
-  if(nextIndex === -1) nextIndex = 0;
-  const target = new Date(hintDates[nextIndex]);
-  target.setHours(0,0,0,0);
-  const diff = target - now;
-  const days = Math.ceil(diff / (1000*60*60*24));
-  heroCountdown.innerHTML = `Noch <strong>${days} Tage</strong> bis zum nächsten Hinweis ❤️`;
+  if(currentHintIndex >= hints.length) return; // alle Hinweise fertig
+  const nextHintDate = hintDates[currentHintIndex];
+  let diff = nextHintDate - now;
+  if(diff <= 0){
+    showHint(currentHintIndex);
+    currentHintIndex++;
+    localStorage.setItem("currentHintIndex", currentHintIndex);
+    if(currentHintIndex < hints.length) updateCountdown();
+    return;
+  }
+  const days = Math.floor(diff/(1000*60*60*24));
+  const hours = Math.floor((diff/(1000*60*60))%24);
+  const minutes = Math.floor((diff/(1000*60))%60);
+  heroCountdown.innerHTML = `Nächster Hinweis in ${days}d ${hours}h ${minutes}m ❤️`;
 }
 updateCountdown();
-setInterval(updateCountdown, 1000*60);
+setInterval(updateCountdown, 1000*60); // jede Minute
 
 /*************** SLIDESHOW ***************/
 let backgrounds = [];
 for(let i=1;i<=20;i++){ backgrounds.push(`Hintergrund${i.toString().padStart(2,'0')}.png`); }
-backgrounds.sort(() => Math.random() - 0.5);
+backgrounds.sort(()=>Math.random()-0.5);
 const heroContainer = document.getElementById("hero-container");
-backgrounds.forEach(bg => {
-  const div = document.createElement("div");
-  div.className = "hero-slide";
-  div.style.backgroundImage = `url(${bg})`;
+backgrounds.forEach(bg=>{
+  const div=document.createElement("div");
+  div.className="hero-slide";
+  div.style.backgroundImage=`url(${bg})`;
   heroContainer.appendChild(div);
 });
-let slides = document.querySelectorAll(".hero-slide");
-let current = 0;
-slides[current].classList.add("active");
+let slides = document.querySelectorAll(".hero-slide"), cur=0;
+slides[cur].classList.add("active");
 setInterval(()=>{
-  slides[current].classList.remove("active");
-  current = (current+1)%slides.length;
-  slides[current].classList.add("active");
-}, 8000);
+  slides[cur].classList.remove("active");
+  cur=(cur+1)%slides.length;
+  slides[cur].classList.add("active");
+},8000);
 
 /*************** MUSIK ***************/
-let started = false;
-document.addEventListener("click", () => {
-  if(!started){
-    document.getElementById("bg-music").play();
-    started = true;
-  }
-});
+let started=false;
+document.addEventListener("click",()=>{if(!started){document.getElementById("bg-music").play(); started=true;}});
 
 /*************** SAISONPARTIKEL + MAUS + MOOD ***************/
-const canvas = document.getElementById("season-canvas");
-const ctx = canvas.getContext("2d");
+const canvas=document.getElementById("season-canvas");
+const ctx=canvas.getContext("2d");
+function resizeCanvas(){canvas.width=innerWidth;canvas.height=innerHeight;}
+window.addEventListener("resize", resizeCanvas); resizeCanvas();
 
-function resizeCanvas(){ canvas.width = innerWidth; canvas.height = innerHeight; }
-window.addEventListener("resize", resizeCanvas);
-resizeCanvas();
-
-const hour = new Date().getHours();
-let mood = hour < 6 || hour >= 22 ? 0.5 : hour < 10 ? 0.8 : hour < 18 ? 1 : 0.7;
-let particles = [];
-const amount = 140;
-let mouseX = canvas.width/2;
-let mouseY = canvas.height/2;
-document.addEventListener("mousemove", e => { mouseX = e.clientX; mouseY = e.clientY; });
+const hour=now.getHours();
+let mood=hour<6||hour>=22?0.5:hour<10?0.8:hour<18?1:0.7;
+let particles=[];
+const amount=140;
+let mouseX=canvas.width/2, mouseY=canvas.height/2;
+document.addEventListener("mousemove", e=>{mouseX=e.clientX; mouseY=e.clientY;});
 
 function getSeason(){
-  if(isAnniversary || (new Date().getDate()===10 && new Date().getMonth()===3)) return "hearts";
-  const m = new Date().getMonth(), d = new Date().getDate();
-  if(m<=2 || (m===3 && d<=15)) return "winter";
+  if(now.getDate()===21 && now.getMonth()===0) return "hearts"; // Jahrestag
+  if(now.getDate()===10 && now.getMonth()===3) return "birthday"; // Geburtstag
+  const m=now.getMonth();
+  if(m<=2) return "winter";
   if(m<=5) return "spring";
   if(m<=8) return "summer";
   return "autumn";
 }
-
-const season = getSeason();
+const season=getSeason();
 
 function createParticle(){
   let color;
@@ -274,35 +218,29 @@ function createParticle(){
   else if(season==="summer") color=`rgba(255,255,200,${0.5*mood})`;
   else color=`rgba(200,120,40,${0.7*mood})`;
 
-  return { x:Math.random()*canvas.width, y:Math.random()*canvas.height,
-    size:Math.random()*5+3, speedY:Math.random()*1.2+0.5,
-    speedX:(Math.random()-0.5)*0.6, color };
+  return {x:Math.random()*canvas.width, y:Math.random()*canvas.height, size:Math.random()*5+3, speedY:Math.random()*1.2+0.5, speedX:(Math.random()-0.5)*0.6, color};
 }
-
 for(let i=0;i<amount;i++) particles.push(createParticle());
 
 function drawHeart(x,y,size){
   ctx.beginPath();
   ctx.moveTo(x,y);
-  ctx.bezierCurveTo(x-size/2, y-size/2, x-size, y+size/3, x,y+size);
-  ctx.bezierCurveTo(x+size, y+size/3, x+size/2, y-size/2, x,y);
+  ctx.bezierCurveTo(x-size/2,y-size/2,x-size,y+size/3,x,y+size);
+  ctx.bezierCurveTo(x+size,y+size/3,x+size/2,y-size/2,x,y);
   ctx.fill();
 }
 
 function animate(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
   particles.forEach(p=>{
-    let dx = p.x - mouseX; let dy = p.y - mouseY;
-    let dist = Math.sqrt(dx*dx + dy*dy);
-    if(dist < 100){ p.x += dx/20; p.y += dy/20; }
-
-    p.y += p.speedY; p.x += p.speedX;
+    let dx=p.x-mouseX, dy=p.y-mouseY, dist=Math.sqrt(dx*dx+dy*dy);
+    if(dist<100){ p.x+=dx/20; p.y+=dy/20; }
+    p.y+=p.speedY; p.x+=p.speedX;
     if(p.y>canvas.height){p.y=0;p.x=Math.random()*canvas.width;}
     if(p.x>canvas.width){p.x=0;} if(p.x<0){p.x=canvas.width;}
-
-    ctx.fillStyle = p.color;
-    if(season==="hearts") drawHeart(p.x,p.y,p.size);
-    else{ ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2); ctx.fill(); }
+    ctx.fillStyle=p.color;
+    if(season==="hearts") drawHeart(p.x,p.y,p.size); 
+    else{ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2); ctx.fill();}
   });
   requestAnimationFrame(animate);
 }
@@ -311,4 +249,3 @@ animate();
 
 </body>
 </html>
-
