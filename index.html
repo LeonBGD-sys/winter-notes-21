@@ -59,12 +59,14 @@ const hints = [
 ];
 
 const hintsContainer = document.getElementById("hints-container");
+hintsContainer.style.display="block";
+
 const heroCountdown = document.getElementById("hero-countdown");
 const anniversaryText = document.getElementById("anniversary-text");
 const now = new Date();
 const currentYear = now.getFullYear();
 
-// ===== DATEN FÜR HINWEISE EINMAL RANDOM =====
+// ===== RANDOM HINT DATES EINMALIG =====
 let hintDates = JSON.parse(localStorage.getItem("hintDates")||"null");
 if(!hintDates){
   hintDates=[];
@@ -79,14 +81,14 @@ if(!hintDates){
 }
 hintDates = hintDates.map(d=>new Date(d));
 
-// ===== CURRENT HINT =====
+// ===== CURRENT HINT INDEX =====
 let currentHintIndex = parseInt(localStorage.getItem("currentHintIndex")||0);
 
-// ===== DATUMSVERGLEICH NUR TAG =====
+// ===== HELPER =====
 function isTodayOrAfter(date){
   const today=new Date(); today.setHours(0,0,0,0);
   const d=new Date(date); d.setHours(0,0,0,0);
-  return today >= d;
+  return today>=d;
 }
 
 // ===== SHOW HINT =====
@@ -99,14 +101,11 @@ function showHint(i){
   hintsContainer.appendChild(div);
   div.querySelector(".envelope").addEventListener("click",()=>{
     div.innerHTML=`<h2>${hint.title}</h2><p>${hint.text}</p><img src="${hint.img}">`;
-    if(i===currentHintIndex){
-      currentHintIndex++;
-      localStorage.setItem("currentHintIndex",currentHintIndex);
-    }
+    if(i===currentHintIndex){ currentHintIndex++; localStorage.setItem("currentHintIndex",currentHintIndex); }
   });
 }
 
-// ===== CHECK HINWEIS HEUTE =====
+// ===== CHECK & SHOW HINT HEUTE =====
 function checkAndShowHint(){
   if(currentHintIndex<hints.length && isTodayOrAfter(hintDates[currentHintIndex])){
     showHint(currentHintIndex);
