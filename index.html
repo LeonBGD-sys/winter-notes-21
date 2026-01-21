@@ -89,16 +89,24 @@ hintDates=hintDates.map(d=>new Date(d));
 // ====== CURRENT HINT ======
 let currentHintIndex = parseInt(localStorage.getItem("currentHintIndex")||0);
 
-// ====== HELPER: ZEIGE HINWEIS ALS UMSCHLAG ======
+// ====== SHOW HINT FUNCTION ======
 function showHint(i){
   hintsContainer.innerHTML="";
   const hint = hints[i];
   const div=document.createElement("div");
   div.className="hint";
+
+  // Umschlag
   div.innerHTML=`<div class="envelope"><span>💌 Öffne den Hinweis</span></div>`;
   hintsContainer.appendChild(div);
+
   div.querySelector(".envelope").addEventListener("click",()=>{
     div.innerHTML=`<h2>${hint.title}</h2><p>${hint.text}</p><img src="${hint.img}">`;
+    // Index erst nach Öffnen erhöhen
+    if(i===currentHintIndex){
+      currentHintIndex++;
+      localStorage.setItem("currentHintIndex",currentHintIndex);
+    }
   });
 }
 
@@ -110,9 +118,6 @@ function updateCountdown(){
   let diff=nextHintDate-now;
   if(diff<=0){
     showHint(currentHintIndex);
-    currentHintIndex++;
-    localStorage.setItem("currentHintIndex",currentHintIndex);
-    if(currentHintIndex<hints.length) updateCountdown();
     return;
   }
   const days=Math.floor(diff/(1000*60*60*24));
@@ -203,8 +208,6 @@ if(now.getDate()===10 && now.getMonth()===3){ anniversaryText.innerText="Alles G
 // ====== START HEUTIGER HINWEIS ======
 if(currentHintIndex===0 && now.getDate()===21 && now.getMonth()===0){
   showHint(0);
-  currentHintIndex=1;
-  localStorage.setItem("currentHintIndex",1);
 }
 </script>
 </body>
