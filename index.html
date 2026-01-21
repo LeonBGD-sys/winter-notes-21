@@ -14,7 +14,6 @@ body {
   overflow-x: hidden;
 }
 
-/* ===== SEASON CANVAS ===== */
 #season-canvas {
   position: fixed;
   inset: 0;
@@ -22,7 +21,6 @@ body {
   z-index: 1;
 }
 
-/* ===== HERO ===== */
 .hero-container {
   position: relative;
   height: 100vh;
@@ -79,7 +77,6 @@ body {
   animation: fadeInUp 2s ease forwards;
 }
 
-/* ===== HINTS ===== */
 .hint {
   position: relative;
   z-index: 3;
@@ -116,13 +113,11 @@ body {
   color: #ffb6c1;
 }
 
-/* ===== ANIMATIONS ===== */
 @keyframes fadeInUp {
   to { opacity: 1; transform: translateY(0); }
 }
 </style>
 </head>
-
 <body>
 
 <canvas id="season-canvas"></canvas>
@@ -145,11 +140,10 @@ body {
 <script>
 /*************** HAUPTLOGIK ***************/
 const ANNIVERSARY_DATE = "2026-01-21";
-const now = new Date();
-const todayStr = now.toISOString().split("T")[0];
-const isAnniversary = todayStr === ANNIVERSARY_DATE;
 
 /* Jahrestagtext */
+const todayStr = new Date().toISOString().split("T")[0];
+const isAnniversary = todayStr === ANNIVERSARY_DATE;
 if(isAnniversary){
   document.getElementById("anniversary-text").innerText =
     "Alles Liebe zum Jahrestag ❤️";
@@ -172,9 +166,7 @@ const hints = [
 ];
 
 const hintsContainer = document.getElementById("hints-container");
-
-/* Monats-Random-Hinweis */
-const month = now.getMonth();
+const month = new Date().getMonth();
 let storedIndex = localStorage.getItem("monthlyHintIndex");
 let hintIndex;
 
@@ -186,18 +178,12 @@ if(storedIndex && storedIndex.split(":")[0] == month){
 }
 const hint = hints[hintIndex];
 
-/* Umschlag anzeigen */
+hintsContainer.innerHTML = "";
 const hintDiv = document.createElement("div");
 hintDiv.className = "hint";
-hintDiv.innerHTML = `
-  <div class="envelope" id="envelope">
-    <span>💌 Öffne den Hinweis für diesen Monat</span>
-  </div>
-`;
-hintsContainer.innerHTML = ""; // sicherstellen, dass vorher nichts drin ist
+hintDiv.innerHTML = `<div class="envelope" id="envelope"><span>💌 Öffne den Hinweis für diesen Monat</span></div>`;
 hintsContainer.appendChild(hintDiv);
 
-/* Klick auf Umschlag */
 hintDiv.querySelector("#envelope").addEventListener("click", () => {
   hintDiv.innerHTML = `<h2>${hint.title}</h2><p>${hint.text}</p><img src="${hint.img}">`;
 });
@@ -215,40 +201,32 @@ function updateCountdown(){
   const now = new Date();
   let nextIndex = hintDates.findIndex(d => new Date(d) > now);
   if(nextIndex === -1) nextIndex = 0;
-
   const target = new Date(hintDates[nextIndex]);
   target.setHours(0,0,0,0);
   const diff = target - now;
   const days = Math.ceil(diff / (1000*60*60*24));
-
   heroCountdown.innerHTML = `Noch <strong>${days} Tage</strong> bis zum nächsten Hinweis ❤️`;
 }
 updateCountdown();
-setInterval(updateCountdown, 1000*60); // jede Minute aktualisieren
+setInterval(updateCountdown, 1000*60);
 
 /*************** SLIDESHOW ***************/
 let backgrounds = [];
-for(let i=1;i<=20;i++){
-  backgrounds.push(`Hintergrund${i.toString().padStart(2,'0')}.png`);
-}
+for(let i=1;i<=20;i++){ backgrounds.push(`Hintergrund${i.toString().padStart(2,'0')}.png`); }
 backgrounds.sort(() => Math.random() - 0.5);
-
 const heroContainer = document.getElementById("hero-container");
-
 backgrounds.forEach(bg => {
   const div = document.createElement("div");
   div.className = "hero-slide";
   div.style.backgroundImage = `url(${bg})`;
   heroContainer.appendChild(div);
 });
-
 let slides = document.querySelectorAll(".hero-slide");
 let current = 0;
 slides[current].classList.add("active");
-
-setInterval(() => {
+setInterval(()=>{
   slides[current].classList.remove("active");
-  current = (current+1) % slides.length;
+  current = (current+1)%slides.length;
   slides[current].classList.add("active");
 }, 8000);
 
@@ -261,24 +239,25 @@ document.addEventListener("click", () => {
   }
 });
 
-/*************** SAISON EFFEKTE + MAUS + MOOD ***************/
+/*************** SAISONPARTIKEL + MAUS + MOOD ***************/
 const canvas = document.getElementById("season-canvas");
 const ctx = canvas.getContext("2d");
 
-function resizeCanvas(){
-  canvas.width = innerWidth;
-  canvas.height = innerHeight;
-}
+function resizeCanvas(){ canvas.width = innerWidth; canvas.height = innerHeight; }
 window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
 
-function isBirthday(){
-  return now.getDate()===10 && now.getMonth()===3;
-}
+const hour = new Date().getHours();
+let mood = hour < 6 || hour >= 22 ? 0.5 : hour < 10 ? 0.8 : hour < 18 ? 1 : 0.7;
+let particles = [];
+const amount = 140;
+let mouseX = canvas.width/2;
+let mouseY = canvas.height/2;
+document.addEventListener("mousemove", e => { mouseX = e.clientX; mouseY = e.clientY; });
 
 function getSeason(){
-  if(isAnniversary || isBirthday()) return "hearts";
-  const m = now.getMonth(), d = now.getDate();
+  if(isAnniversary || (new Date().getDate()===10 && new Date().getMonth()===3)) return "hearts";
+  const m = new Date().getMonth(), d = new Date().getDate();
   if(m<=2 || (m===3 && d<=15)) return "winter";
   if(m<=5) return "spring";
   if(m<=8) return "summer";
@@ -287,23 +266,6 @@ function getSeason(){
 
 const season = getSeason();
 
-/* Mood Tagesstimmung */
-const hour = now.getHours();
-let mood = hour < 6 || hour >= 22 ? 0.5 : hour < 10 ? 0.8 : hour < 18 ? 1 : 0.7;
-
-/* Partikel Array */
-let particles = [];
-const amount = 140;
-
-/* Mausposition */
-let mouseX = canvas.width/2;
-let mouseY = canvas.height/2;
-document.addEventListener("mousemove", e => {
-  mouseX = e.clientX;
-  mouseY = e.clientY;
-});
-
-/* Partikel erstellen */
 function createParticle(){
   let color;
   if(season==="hearts") color="rgba(255,80,120,0.8)";
@@ -312,63 +274,41 @@ function createParticle(){
   else if(season==="summer") color=`rgba(255,255,200,${0.5*mood})`;
   else color=`rgba(200,120,40,${0.7*mood})`;
 
-  return {
-    x: Math.random()*canvas.width,
-    y: Math.random()*canvas.height,
-    size: Math.random()*5+3,
-    speedY: Math.random()*1.2+0.5,
-    speedX: (Math.random()-0.5)*0.6,
-    color
-  };
+  return { x:Math.random()*canvas.width, y:Math.random()*canvas.height,
+    size:Math.random()*5+3, speedY:Math.random()*1.2+0.5,
+    speedX:(Math.random()-0.5)*0.6, color };
 }
 
 for(let i=0;i<amount;i++) particles.push(createParticle());
 
 function drawHeart(x,y,size){
   ctx.beginPath();
-  ctx.moveTo(x, y);
-  ctx.bezierCurveTo(x-size/2, y-size/2, x-size, y+size/3, x, y+size);
-  ctx.bezierCurveTo(x+size, y+size/3, x+size/2, y-size/2, x, y);
+  ctx.moveTo(x,y);
+  ctx.bezierCurveTo(x-size/2, y-size/2, x-size, y+size/3, x,y+size);
+  ctx.bezierCurveTo(x+size, y+size/3, x+size/2, y-size/2, x,y);
   ctx.fill();
 }
 
-/* Animate Loop */
 function animate(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  particles.forEach(p => {
-    /* Maus-Interaktion */
-    let dx = p.x - mouseX;
-    let dy = p.y - mouseY;
+  particles.forEach(p=>{
+    let dx = p.x - mouseX; let dy = p.y - mouseY;
     let dist = Math.sqrt(dx*dx + dy*dy);
-    if(dist < 100){
-      p.x += dx/20;
-      p.y += dy/20;
-    }
+    if(dist < 100){ p.x += dx/20; p.y += dy/20; }
 
-    /* Bewegung */
-    p.y += p.speedY;
-    p.x += p.speedX;
-
-    /* Reset am unteren Rand */
+    p.y += p.speedY; p.x += p.speedX;
     if(p.y>canvas.height){p.y=0;p.x=Math.random()*canvas.width;}
-    if(p.x>canvas.width){p.x=0;}
-    if(p.x<0){p.x=canvas.width;}
+    if(p.x>canvas.width){p.x=0;} if(p.x<0){p.x=canvas.width;}
 
-    /* Farbe + Form */
     ctx.fillStyle = p.color;
     if(season==="hearts") drawHeart(p.x,p.y,p.size);
-    else{
-      ctx.beginPath();
-      ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
-      ctx.fill();
-    }
+    else{ ctx.beginPath(); ctx.arc(p.x,p.y,p.size,0,Math.PI*2); ctx.fill(); }
   });
-
   requestAnimationFrame(animate);
 }
 animate();
-
 </script>
 
 </body>
 </html>
+
