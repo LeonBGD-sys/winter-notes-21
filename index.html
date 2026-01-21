@@ -177,6 +177,7 @@ const hintsContainer = document.getElementById("hints-container");
 const month = now.getMonth();
 let storedIndex = localStorage.getItem("monthlyHintIndex");
 let hintIndex;
+
 if(storedIndex && storedIndex.split(":")[0] == month){
   hintIndex = parseInt(storedIndex.split(":")[1]);
 } else {
@@ -185,7 +186,7 @@ if(storedIndex && storedIndex.split(":")[0] == month){
 }
 const hint = hints[hintIndex];
 
-/* Umschlag für diesen Hinweis */
+/* Umschlag anzeigen */
 const hintDiv = document.createElement("div");
 hintDiv.className = "hint";
 hintDiv.innerHTML = `
@@ -193,6 +194,7 @@ hintDiv.innerHTML = `
     <span>💌 Öffne den Hinweis für diesen Monat</span>
   </div>
 `;
+hintsContainer.innerHTML = ""; // sicherstellen, dass vorher nichts drin ist
 hintsContainer.appendChild(hintDiv);
 
 /* Klick auf Umschlag */
@@ -203,29 +205,26 @@ hintDiv.querySelector("#envelope").addEventListener("click", () => {
 /*************** COUNTDOWN ZUM NÄCHSTEN HINWEIS ***************/
 const heroCountdown = document.getElementById("hero-countdown");
 
-/* Hinweis-Termine für Countdown (1x pro Monat) */
 const hintDates = [
   "2026-01-21", "2026-02-21", "2026-03-21", "2026-04-21",
   "2026-05-21", "2026-06-21", "2026-07-21", "2026-08-21",
   "2026-09-21", "2026-10-21", "2026-11-21", "2026-12-21"
 ];
 
-function daysUntil(dateStr){
-  const target = new Date(dateStr);
+function updateCountdown(){
+  const now = new Date();
+  let nextIndex = hintDates.findIndex(d => new Date(d) > now);
+  if(nextIndex === -1) nextIndex = 0;
+
+  const target = new Date(hintDates[nextIndex]);
   target.setHours(0,0,0,0);
   const diff = target - now;
-  return Math.ceil(diff / (1000*60*60*24));
-}
+  const days = Math.ceil(diff / (1000*60*60*24));
 
-let nextIndex = hintDates.findIndex(d => new Date(d) > now);
-if(nextIndex === -1) nextIndex = 0;
-
-function updateCountdown(){
-  const days = daysUntil(hintDates[nextIndex]);
   heroCountdown.innerHTML = `Noch <strong>${days} Tage</strong> bis zum nächsten Hinweis ❤️`;
 }
 updateCountdown();
-setInterval(updateCountdown, 1000*60);
+setInterval(updateCountdown, 1000*60); // jede Minute aktualisieren
 
 /*************** SLIDESHOW ***************/
 let backgrounds = [];
