@@ -257,10 +257,35 @@ function showHint(i){
   container.appendChild(div);
 }
 
+
 hints.forEach((h,i)=>{
-  if(i===0) return;
-  if(TEST_MODE || isTodayOrAfter(hintDates[i])) showHint(i);
+  if (TEST_MODE || isTodayOrAfter(hintDates[i])) {
+
+    const env = document.createElement("div");
+    env.className = "hint";
+
+    env.innerHTML = `
+      <div style="
+        border:2px solid #ff4d6d;
+        padding:30px;
+        border-radius:12px;
+        cursor:pointer;
+        background:#111;
+        max-width:300px;
+        margin:20px auto;">
+        💌 <strong>Öffne Hinweis ${i+1}</strong>
+      </div>
+    `;
+
+    env.onclick = () => {
+      env.remove();
+      showHint(i);
+    };
+
+    container.appendChild(env);
+  }
 });
+
 
 /* COUNTDOWN */
 const nextIndex = hintDates.findIndex(d => !isTodayOrAfter(d));
