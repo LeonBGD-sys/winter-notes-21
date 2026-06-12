@@ -1,387 +1,1334 @@
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<title>Für dich ❤️</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Für dich ❤️</title>
 
-<style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #000;
-  color: #fff;
-  text-align: center;
-  overflow-x: hidden;
-}
+  <style>
+    :root{
+      --bg:#050505;
+      --card:#101010;
+      --card-2:#171717;
+      --text:#ffffff;
+      --muted:#d4d4d4;
+      --primary:#ff4d6d;
+      --primary-2:#ff8fa3;
+      --shadow:0 10px 30px rgba(255,77,109,0.18);
+      --radius:18px;
+      --radius-lg:24px;
+      --max:1180px;
+    }
 
-/* ===== PASSWORT ===== */
-#password-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.95);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
+    *{
+      box-sizing:border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-#password-box {
-  background: #111;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 0 20px #ff4d6d;
-}
+    html{
+      scroll-behavior:smooth;
+    }
 
-#password-box input {
-  padding: 10px;
-  border-radius: 6px;
-  border: none;
-}
+    body{
+      margin:0;
+      font-family: Arial, Helvetica, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top, rgba(255,77,109,0.08), transparent 28%),
+        linear-gradient(180deg, #040404 0%, #070707 55%, #0b0b0b 100%);
+      overflow-x:hidden;
+    }
 
-#password-box button {
-  margin-top: 10px;
-  padding: 10px 20px;
-  background: #ff4d6d;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
+    img{
+      max-width:100%;
+      display:block;
+    }
 
-#password-error { color:#ff6b6b; margin-top:10px; }
+    a, button, input{
+      font:inherit;
+    }
 
-/* ===== HERO ===== */
-.hero-container {
-  position: relative;
-  height: 100vh;
-  overflow: hidden;
-}
+    /* ===== Passwort Overlay ===== */
+    #password-overlay{
+      position:fixed;
+      inset:0;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:20px;
+      background:rgba(0,0,0,0.94);
+      backdrop-filter: blur(8px);
+      z-index:9999;
+    }
 
-.hero-slide {
-  position: absolute;
-  inset: 0;
-  background-size: contain;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-color: #000;
-  opacity: 0;
-  transition: opacity 1.5s ease-in-out;
-  z-index: -1;
-}
+    #password-box{
+      width:min(92vw, 420px);
+      background:linear-gradient(180deg, #111 0%, #0d0d0d 100%);
+      border:1px solid rgba(255,255,255,0.06);
+      border-radius:22px;
+      padding:28px 24px;
+      box-shadow:0 0 35px rgba(255,77,109,0.22);
+      text-align:center;
+    }
 
-.hero-slide.active { opacity: 1; }
+    #password-box h2{
+      margin:0 0 10px;
+      font-size:1.5rem;
+    }
 
-.hero-text {
-  position: absolute;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  text-shadow: 2px 2px 6px #000;
-  z-index: 2;
-}
+    #password-box p{
+      margin:0 0 18px;
+      color:var(--muted);
+      font-size:0.98rem;
+      line-height:1.5;
+    }
 
-/* ===== HINWEISE ===== */
-.hint {
-  margin: 60px auto;
-  max-width: 800px;
-  padding: 0 20px;
-  opacity: 0;
-  transform: translateY(30px);
-  animation: fadeInUp 1.2s ease forwards;
-}
+    #password-box input{
+      width:100%;
+      padding:14px 16px;
+      border:none;
+      border-radius:12px;
+      outline:none;
+      background:#1a1a1a;
+      color:#fff;
+      margin-bottom:12px;
+    }
 
-.hint img {
-  width: 100%;
-  border-radius: 12px;
-  margin-top: 15px;
-}
+    #password-box button{
+      width:100%;
+      padding:14px 16px;
+      border:none;
+      border-radius:12px;
+      background:linear-gradient(135deg, var(--primary), var(--primary-2));
+      color:#fff;
+      cursor:pointer;
+      font-weight:700;
+      transition:transform .2s ease, opacity .2s ease;
+    }
 
-@keyframes fadeInUp {
-  to { opacity:1; transform:translateY(0); }
-}
+    #password-box button:hover{
+      transform:translateY(-1px);
+      opacity:.96;
+    }
 
-/* ===== PARTIKEL ===== */
-.particle {
-  position: fixed;
-  top: -10px;
-  pointer-events: none;
-  animation: fall linear infinite;
-  z-index: 1000;
-}
+    #password-error{
+      color:#ff8a8a;
+      margin-top:12px;
+      min-height:20px;
+      font-size:0.95rem;
+    }
 
-@keyframes fall {
-  to { transform: translateY(110vh); opacity:0; }
-}
-</style>
+    /* ===== Floating Music Button ===== */
+    .music-btn{
+      position:fixed;
+      right:14px;
+      bottom:14px;
+      z-index:1500;
+      border:none;
+      border-radius:999px;
+      background:rgba(255,77,109,0.9);
+      color:#fff;
+      box-shadow:var(--shadow);
+      padding:12px 16px;
+      cursor:pointer;
+      font-weight:700;
+      backdrop-filter: blur(6px);
+      transition:transform .2s ease, opacity .2s ease;
+    }
+
+    .music-btn:hover{
+      transform:translateY(-1px);
+      opacity:.95;
+    }
+
+    /* ===== Hero ===== */
+    .hero-container{
+      position:relative;
+      min-height:100svh;
+      overflow:hidden;
+      display:block;
+      border-bottom:1px solid rgba(255,255,255,0.06);
+      background:#000;
+    }
+
+    .hero-slide{
+      position:absolute;
+      inset:0;
+      background-size:contain;
+      background-position:center;
+      background-repeat:no-repeat;
+      background-color:#000;
+      opacity:0;
+      transition:opacity 1.4s ease-in-out, transform 8s linear;
+      z-index:0;
+      transform:scale(1.02);
+    }
+
+    .hero-slide.active{
+      opacity:1;
+      transform:scale(1.05);
+    }
+
+    .hero-overlay{
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.35) 32%, rgba(0,0,0,0.58) 100%);
+      z-index:1;
+    }
+
+    .hero-content{
+      position:relative;
+      z-index:2;
+      min-height:100svh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:28px 20px 60px;
+    }
+
+    .hero-text{
+      width:min(100%, 940px);
+      text-align:center;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.55);
+      padding:24px 16px;
+    }
+
+    .hero-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 14px;
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius:999px;
+      background:rgba(255,255,255,0.06);
+      backdrop-filter: blur(8px);
+      color:#fff;
+      font-size:0.95rem;
+      margin-bottom:18px;
+    }
+
+    .hero-text h1{
+      margin:0;
+      font-size:clamp(2.1rem, 6vw, 4.7rem);
+      line-height:1.05;
+      letter-spacing:-0.02em;
+    }
+
+    .hero-text p{
+      width:min(100%, 760px);
+      margin:16px auto 0;
+      font-size:clamp(1rem, 2.6vw, 1.2rem);
+      line-height:1.7;
+      color:#f5f5f5;
+    }
+
+    .hero-stats{
+      margin-top:24px;
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+      gap:14px;
+    }
+
+    .hero-card{
+      background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.1);
+      border-radius:18px;
+      padding:16px 18px;
+      backdrop-filter: blur(10px);
+    }
+
+    .hero-card strong{
+      display:block;
+      font-size:1.02rem;
+      margin-bottom:6px;
+    }
+
+    #hero-countdown, #anniversary-text{
+      color:#fff;
+      line-height:1.6;
+    }
+
+    /* ===== Main Section ===== */
+    .main{
+      position:relative;
+      z-index:2;
+      width:min(100%, var(--max));
+      margin:0 auto;
+      padding:34px 18px 90px;
+    }
+
+    .section-head{
+      text-align:center;
+      margin:0 auto 28px;
+      max-width:760px;
+    }
+
+    .section-head h2{
+      margin:0 0 10px;
+      font-size:clamp(1.6rem, 4vw, 2.5rem);
+    }
+
+    .section-head p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.7;
+      font-size:1rem;
+    }
+
+    .hint-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));
+      gap:18px;
+      align-items:start;
+    }
+
+    /* ===== Envelope Card ===== */
+    .hint-card{
+      position:relative;
+      background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015));
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:var(--radius-lg);
+      overflow:hidden;
+      box-shadow:var(--shadow);
+      min-height:280px;
+      transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+    }
+
+    .hint-card:hover{
+      transform:translateY(-3px);
+      border-color:rgba(255,77,109,0.28);
+      box-shadow:0 16px 34px rgba(255,77,109,0.14);
+    }
+
+    .hint-card-inner{
+      padding:18px;
+      height:100%;
+    }
+
+    .hint-meta{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin-bottom:14px;
+    }
+
+    .hint-label{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      background:rgba(255,77,109,0.12);
+      color:#ffdce2;
+      border:1px solid rgba(255,77,109,0.18);
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:0.9rem;
+      font-weight:700;
+    }
+
+    .hint-date{
+      color:#cfcfcf;
+      font-size:0.88rem;
+      text-align:right;
+    }
+
+    /* Envelope graphic */
+    .envelope-wrap{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin-top:10px;
+      min-height:190px;
+      perspective: 1000px;
+    }
+
+    .envelope{
+      position:relative;
+      width:min(100%, 290px);
+      height:180px;
+      cursor:pointer;
+      transform-style:preserve-3d;
+      transition:transform .45s ease;
+    }
+
+    .hint-card:active .envelope{
+      transform:scale(.99);
+    }
+
+    .envelope-back{
+      position:absolute;
+      inset:0;
+      border-radius:18px;
+      background:linear-gradient(180deg, #ffd6de 0%, #ffb7c5 100%);
+      overflow:hidden;
+      box-shadow:0 10px 26px rgba(0,0,0,0.28);
+    }
+
+    .envelope-back::before{
+      content:"";
+      position:absolute;
+      inset:auto 0 0 0;
+      height:78%;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.32), rgba(255,255,255,0.06)),
+        linear-gradient(180deg, #ffc6d2, #ffb2c2);
+      clip-path: polygon(0 0, 50% 48%, 100% 0, 100% 100%, 0 100%);
+      z-index:1;
+    }
+
+    .envelope-back::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(315deg, rgba(255,255,255,0.38), rgba(255,255,255,0.08));
+      clip-path: polygon(0 0, 50% 55%, 100% 0, 100% 100%, 0 100%);
+      opacity:.55;
+      z-index:0;
+    }
+
+    .envelope-letter{
+      position:absolute;
+      left:50%;
+      top:18px;
+      transform:translateX(-50%);
+      width:84%;
+      height:120px;
+      border-radius:14px;
+      background:linear-gradient(180deg, #fff 0%, #fff7f8 100%);
+      color:#333;
+      z-index:2;
+      box-shadow:0 10px 20px rgba(0,0,0,0.14);
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      gap:8px;
+      transition:transform .6s ease, top .6s ease, opacity .35s ease;
+    }
+
+    .envelope-letter .seal{
+      font-size:2rem;
+      line-height:1;
+      filter:drop-shadow(0 2px 3px rgba(0,0,0,0.12));
+    }
+
+    .envelope-letter .mini-text{
+      color:#666;
+      font-size:0.95rem;
+      text-align:center;
+      padding:0 10px;
+    }
+
+    .envelope-front{
+      position:absolute;
+      inset:0;
+      z-index:4;
+      pointer-events:none;
+    }
+
+    .env-left, .env-right, .env-bottom{
+      position:absolute;
+      inset:auto 0 0 0;
+    }
+
+    .env-left{
+      width:50%;
+      height:100%;
+      left:0;
+      background:linear-gradient(180deg, #ffbbc8, #ff9cb0);
+      clip-path: polygon(0 0, 100% 50%, 100% 100%, 0 100%);
+    }
+
+    .env-right{
+      width:50%;
+      height:100%;
+      right:0;
+      left:auto;
+      background:linear-gradient(180deg, #ffb3c1, #ff92a8);
+      clip-path: polygon(0 50%, 100% 0, 100% 100%, 0 100%);
+    }
+
+    .env-bottom{
+      width:100%;
+      height:58%;
+      left:0;
+      background:linear-gradient(180deg, #ffb3c1, #ff8ea5);
+      clip-path: polygon(0 0, 50% 58%, 100% 0, 100% 100%, 0 100%);
+      z-index:3;
+    }
+
+    .env-flap{
+      position:absolute;
+      inset:0;
+      z-index:5;
+      transform-origin:top;
+      transition:transform .8s ease;
+    }
+
+    .env-flap::before{
+      content:"";
+      position:absolute;
+      left:0;
+      top:0;
+      width:100%;
+      height:100%;
+      background:linear-gradient(180deg, #ffd7df, #ffb1c1);
+      clip-path: polygon(0 0, 50% 58%, 100% 0, 100% 0, 0 0);
+      filter:drop-shadow(0 6px 12px rgba(0,0,0,0.18));
+    }
+
+    .envelope-title{
+      margin-top:12px;
+      text-align:center;
+      font-size:1rem;
+      color:#fff;
+      line-height:1.55;
+    }
+
+    .envelope-title strong{
+      color:#fff;
+      font-size:1.06rem;
+    }
+
+    .envelope-hint{
+      margin-top:10px;
+      text-align:center;
+      color:#ffdce2;
+      font-size:0.92rem;
+    }
+
+    /* Opening animation */
+    .hint-card.opening .env-flap{
+      transform:rotateX(180deg);
+    }
+
+    .hint-card.opening .envelope-letter{
+      top:-26px;
+      transform:translateX(-50%) scale(1.02);
+    }
+
+    .hint-card.opened{
+      min-height:auto;
+    }
+
+    .hint-content{
+      opacity:0;
+      transform:translateY(18px);
+      animation:fadeUp .6s ease forwards;
+    }
+
+    @keyframes fadeUp{
+      to{
+        opacity:1;
+        transform:translateY(0);
+      }
+    }
+
+    .hint-content h3{
+      margin:6px 0 10px;
+      font-size:1.4rem;
+    }
+
+    .hint-content p{
+      margin:0 0 16px;
+      color:#ededed;
+      line-height:1.7;
+      font-size:1rem;
+    }
+
+    .hint-image{
+      position:relative;
+      border-radius:18px;
+      overflow:hidden;
+      background:#0d0d0d;
+      border:1px solid rgba(255,255,255,0.08);
+    }
+
+    .hint-image img{
+      width:100%;
+      height:auto;
+      max-height:620px;
+      object-fit:contain;
+      background:#000;
+    }
+
+    .img-fallback{
+      display:none;
+      padding:20px;
+      color:#ffb7c5;
+      text-align:center;
+      line-height:1.6;
+      background:#121212;
+    }
+
+    .hint-footer{
+      margin-top:14px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .small-btn{
+      border:none;
+      border-radius:999px;
+      padding:10px 14px;
+      background:rgba(255,77,109,0.14);
+      color:#ffe4e9;
+      border:1px solid rgba(255,77,109,0.18);
+      cursor:pointer;
+      font-weight:700;
+    }
+
+    .small-muted{
+      color:#c9c9c9;
+      font-size:0.92rem;
+    }
+
+    .empty-note{
+      padding:22px;
+      text-align:center;
+      border-radius:18px;
+      background:rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.08);
+      color:var(--muted);
+      line-height:1.7;
+    }
+
+    /* ===== Heart explosion ===== */
+    .burst-heart{
+      position:fixed;
+      z-index:3000;
+      pointer-events:none;
+      font-size:1.2rem;
+      opacity:1;
+      transform:translate(-50%, -50%) scale(0.8);
+      animation:heartBurst .95s ease-out forwards;
+      filter:drop-shadow(0 4px 10px rgba(255,77,109,0.26));
+    }
+
+    @keyframes heartBurst{
+      0%{
+        opacity:0;
+        transform:translate(-50%, -50%) scale(0.4);
+      }
+      14%{
+        opacity:1;
+      }
+      100%{
+        opacity:0;
+        transform:translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(1.35);
+      }
+    }
+
+    /* ===== Floating particles ===== */
+    .particle{
+      position:fixed;
+      top:-10px;
+      left:0;
+      pointer-events:none;
+      z-index:1200;
+      opacity:.95;
+      animation:fall linear forwards;
+      will-change:transform, opacity;
+    }
+
+    @keyframes fall{
+      to{
+        transform: translateY(110vh) rotate(170deg);
+        opacity:0;
+      }
+    }
+
+    /* ===== Footer / info ===== */
+    .info-box{
+      margin-top:26px;
+      padding:16px 18px;
+      border-radius:18px;
+      background:rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.08);
+      color:#dcdcdc;
+      line-height:1.7;
+      font-size:0.96rem;
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 768px){
+      .hero-content{
+        padding:24px 16px 42px;
+        min-height:92svh;
+      }
+
+      .hero-stats{
+        grid-template-columns:1fr;
+      }
+
+      .main{
+        padding:28px 14px 100px;
+      }
+
+      .hint-grid{
+        grid-template-columns:1fr;
+      }
+
+      .hint-card{
+        min-height:260px;
+      }
+
+      .envelope{
+        height:170px;
+      }
+
+      .hero-badge{
+        font-size:0.88rem;
+      }
+
+      .music-btn{
+        right:12px;
+        bottom:12px;
+        padding:12px 14px;
+        font-size:0.95rem;
+      }
+    }
+
+    @media (max-width: 420px){
+      .hero-text p{
+        font-size:0.98rem;
+      }
+
+      .hint-meta{
+        align-items:flex-start;
+        flex-direction:column;
+      }
+
+      .hint-date{
+        text-align:left;
+      }
+
+      #password-box{
+        padding:24px 18px;
+      }
+    }
+  </style>
 </head>
-
 <body>
 
-<div id="password-overlay">
-  <div id="password-box">
-    <h2>🔒 Geschützt</h2>
-    <input type="password" id="password-input" placeholder="Passwort">
-    <br>
-    <button onclick="checkPassword()">Öffnen</button>
-    <div id="password-error"></div>
+  <!-- Passwort-Sperre -->
+  <div id="password-overlay">
+    <div id="password-box">
+      <h2>🔒 Geschützt</h2>
+      <p>Bitte gib das Passwort ein, um die Seite zu öffnen.</p>
+      <input type="password" id="password-input" placeholder="Passwort eingeben" />
+      <button onclick="checkPassword()">Öffnen</button>
+      <div id="password-error"></div>
+    </div>
   </div>
-</div>
 
-<div class="hero-container" id="hero-container">
-  <div class="hero-text">
-    <h1>Für dich ❤️</h1>
-    <p>Jeden Monat ein kleiner Hinweis…</p>
-    <div id="hero-countdown"></div>
-    <div id="anniversary-text"></div>
-  </div>
-</div>
+  <!-- Hero -->
+  <section class="hero-container" id="hero-container" style="display:none;">
+    <div class="hero-overlay"></div>
 
-<div id="hints-container"></div>
+    <div class="hero-content">
+      <div class="hero-text">
+        <div class="hero-badge">❤️ Jeden Monat ein kleiner Hinweis</div>
+        <h1>Für dich ❤️</h1>
+        <p>
+          Jeden Monat wartet ein kleiner Brief auf dich.
+          Manche sind schon da – andere brauchen noch ein wenig Zeit.
+        </p>
 
-<audio id="bg-music" loop>
-  <source src="Send Me On My Way.mp3" type="audio/mpeg">
-</audio>
+        <div class="hero-stats">
+          <div class="hero-card">
+            <strong>Nächster Moment</strong>
+            <div id="hero-countdown">Wird geladen…</div>
+          </div>
 
-<script>
-const TEST_MODE = false;
-const PASSWORD = "21Stephie-Leon01";
-
-const overlay = document.getElementById("password-overlay");
-const hero = document.getElementById("hero-container");
-const hintsBox = document.getElementById("hints-container");
-
-overlay.style.display = "none";
-
-if (TEST_MODE) {
-  overlay.style.display = "flex";
-  hero.style.display = "none";
-  hintsBox.style.display = "none";
-} else {
-  startSite();
-}
-
-function checkPassword(){
-  const input = document.getElementById("password-input").value;
-  if(input === PASSWORD){
-    overlay.style.display="none";
-    hero.style.display="block";
-    hintsBox.style.display="block";
-    startSite();
-  } else {
-    document.getElementById("password-error").innerText="❌ Falsches Passwort";
-  }
-}
-
-/* DATUMSVERGLEICH OHNE UHRZEIT */
-function isTodayOrAfter(dateStr){
-  const today = new Date();
-  const d = new Date(dateStr);
-
-  return (
-    today.getFullYear() > d.getFullYear() ||
-    (today.getFullYear() === d.getFullYear() &&
-     today.getMonth() > d.getMonth()) ||
-    (today.getFullYear() === d.getFullYear() &&
-     today.getMonth() === d.getMonth() &&
-     today.getDate() >= d.getDate())
-  );
-}
-
-function startSite(){
-
-/* WARTE TEXTE */
-const waitingTexts = [
-  "Tut mir leid… du musst dich noch etwas gedulden ❤️",
-  "Geduld ist eine Tugend… 😉",
-  "Noch nicht… aber bald 🕰️"
-];
-
-/* ZUFALLSDATEN */
-function randomDay(year, month) {
-  const days = new Date(year, month + 1, 0).getDate();
-  return Math.floor(Math.random() * (days - 6)) + 3;
-}
-
-function generateDates() {
-  const stored = localStorage.getItem("hintDates");
-  if (stored) return JSON.parse(stored);
-
-  const dates = ["2026-01-21"];
-  for (let m = 1; m < 12; m++) {
-    const d = randomDay(2026, m);
-    dates.push(new Date(2026, m, d).toISOString().split("T")[0]);
-  }
-  localStorage.setItem("hintDates", JSON.stringify(dates));
-  return dates;
-}
-const hintDates = generateDates();
-
-/* HINWEISE */
-const hints = [
-  { title:"Januar ❤️", text:"Hier kommt dein erster Hinweis…", img:"hinweis01.png" },
-  { title:"Februar ❤️", text:"Der zweite kleine Hinweis wartet…", img:"hinweis02.png" },
-  { title:"März ❤️", text:"Ein neuer Monat, ein neuer Hinweis…", img:"hinweis03.png" },
-  { title:"April ❤️", text:"Vielleicht erinnerst du dich…", img:"hinweis04.png" },
-  { title:"Mai ❤️", text:"Ein weiterer Hinweis für dich…", img:"hinweis05.png" },
-  { title:"Juni ❤️", text:"Halbzeit…", img:"hinweis06.png" },
-  { title:"Juli ❤️", text:"Sommer & Erinnerungen…", img:"hinweis07.png" },
-  { title:"August ❤️", text:"Warm wie dieser Monat…", img:"hinweis08.png" },
-  { title:"September ❤️", text:"Der Herbst kommt näher…", img:"hinweis09.png" },
-  { title:"Oktober ❤️", text:"Ein geheimnisvoller Hinweis…", img:"hinweis10.png" },
-  { title:"November ❤️", text:"Fast am Ziel…", img:"hinweis11.png" },
-  { title:"24. Dezember 🎄❤️", text:"Der letzte Hinweis…", img:"hinweis12.png" }
-];
-
-const container = document.getElementById("hints-container");
-
-/* ERSTER HINWEIS MIT UMSCHLAG */
-if (TEST_MODE || isTodayOrAfter(hintDates[0])) {
-  const env = document.createElement("div");
-  env.className = "hint";
-  env.innerHTML = `
-    <div style="border:2px solid #ff4d6d;padding:30px;border-radius:12px;cursor:pointer;background:#111;max-width:300px;margin:0 auto;">
-      💌 <strong>Öffne den ersten Hinweis</strong>
-    </div>`;
-  env.onclick = () => {
-    env.remove();
-    showHint(0);
-  };
-  container.appendChild(env);
-}
-
-function showHint(i){
-  const h = hints[i];
-  const div = document.createElement("div");
-  div.className="hint";
-  div.innerHTML=`<h2>${h.title}</h2><p>${h.text}</p><img src="${h.img}">`;
-  container.appendChild(div);
-}
-
-
-hints.forEach((h,i)=>{
-  if (TEST_MODE || isTodayOrAfter(hintDates[i])) {
-
-    const env = document.createElement("div");
-    env.className = "hint";
-
-    env.innerHTML = `
-      <div style="
-        border:2px solid #ff4d6d;
-        padding:30px;
-        border-radius:12px;
-        cursor:pointer;
-        background:#111;
-        max-width:300px;
-        margin:20px auto;">
-        💌 <strong>Öffne Hinweis ${i+1}</strong>
+          <div class="hero-card">
+            <strong>Übersicht</strong>
+            <div id="anniversary-text">Wird geladen…</div>
+          </div>
+        </div>
       </div>
-    `;
+    </div>
+  </section>
 
-    env.onclick = () => {
-      env.remove();
-      showHint(i);
-    };
+  <!-- Inhalte -->
+  <main class="main" id="hints-container" style="display:none;">
+    <div class="section-head">
+      <h2>Deine Briefe 💌</h2>
+      <p>
+        Jeder verfügbare Hinweis steckt in einem eigenen Brief.
+        Du musst ihn selbst öffnen, um den Inhalt zu sehen.
+      </p>
+    </div>
 
-    container.appendChild(env);
-  }
-});
+    <div class="hint-grid" id="hint-grid"></div>
 
+    <div class="info-box">
+      <strong>Tipp:</strong> Wenn ein Bild nicht angezeigt wird, stimmt meistens der Dateiname oder der Speicherort nicht.
+      Die Datei muss exakt gleich heißen wie im Code – inklusive Groß-/Kleinschreibung.
+    </div>
+  </main>
 
-/* COUNTDOWN */
-const nextIndex = hintDates.findIndex(d => !isTodayOrAfter(d));
-if (nextIndex !== -1) {
-  const heroCountdown=document.getElementById("hero-countdown");
-  const randomText=waitingTexts[Math.floor(Math.random()*waitingTexts.length)];
+  <!-- Musik -->
+  <audio id="bg-music" loop>
+    <source src="Send Me On My Way.mp3" type="audio/mpeg">
+  </audio>
+  <button class="music-btn" id="music-toggle" type="button">🎵 Musik starten</button>
 
-  function updateCountdown(){
-    const diff=new Date(hintDates[nextIndex])-new Date();
-    if(diff<=0) location.reload();
-    const days=Math.max(0,Math.floor(diff/(1000*60*60*24)));
-    heroCountdown.innerHTML=`${randomText}<br><strong>Nächster Hinweis in ${days} Tagen ❤️</strong>`;
-  }
-  updateCountdown();
-  setInterval(updateCountdown,1000);
-}
+  <script>
+    /********************************************************
+     * EINSTELLUNGEN
+     ********************************************************/
+    const TEST_MODE = false;                // true = alle Hinweise sichtbar
+    const USE_PASSWORD = true;              // true = Passwort abfragen
+    const PASSWORD = "21Stephie-Leon01";    // Passwort
+    const BG_COUNT = 20;                    // Anzahl Hintergrundbilder: Hintergrund01.png ... Hintergrund20.png
+    const STORAGE_HINT_DATES = "hintDates_v2";
+    const STORAGE_UNLOCKED = "siteUnlocked_v1";
 
-/* SLIDESHOW */
-let backgrounds=[];
-for(let i=1;i<=20;i++) backgrounds.push(`Hintergrund${i.toString().padStart(2,'0')}.png`);
-backgrounds.sort(()=>Math.random()-0.5);
+    const overlay = document.getElementById("password-overlay");
+    const hero = document.getElementById("hero-container");
+    const hintsBox = document.getElementById("hints-container");
+    const grid = document.getElementById("hint-grid");
+    const music = document.getElementById("bg-music");
+    const musicBtn = document.getElementById("music-toggle");
+    const passwordInput = document.getElementById("password-input");
+    const passwordError = document.getElementById("password-error");
 
-const heroContainer=document.getElementById("hero-container");
-backgrounds.forEach(bg=>{
-  const div=document.createElement("div");
-  div.className="hero-slide";
-  div.style.backgroundImage=`url(${bg})`;
-  heroContainer.appendChild(div);
-});
+    let siteStarted = false;
+    let slideshowInterval = null;
+    let countdownInterval = null;
+    let particleInterval = null;
+    let musicStarted = false;
 
-let slides=document.querySelectorAll(".hero-slide");
-let current=0;
-slides[current].classList.add("active");
+    /********************************************************
+     * HINWEISE
+     * WICHTIG: Prüfe bei fehlenden Bildern den Dateinamen!
+     ********************************************************/
+    const hints = [
+      { title:"Januar ❤️", text:"Hier kommt dein erster Hinweis…", img:"hinweis01.png" },
+      { title:"Februar ❤️", text:"Der zweite kleine Hinweis wartet…", img:"hinweis02.png" },
+      { title:"März ❤️", text:"Ein neuer Monat, ein neuer Hinweis…", img:"hinweis03.png" },
+      { title:"April ❤️", text:"Vielleicht erinnerst du dich…", img:"hinweis04.png" },
+      { title:"Mai ❤️", text:"Ein weiterer Hinweis für dich…", img:"hinweis05.png" },
+      { title:"Juni ❤️", text:"Halbzeit…", img:"hinweis06.png" },
+      { title:"Juli ❤️", text:"Sommer & Erinnerungen…", img:"hinweis07.png" },
+      { title:"August ❤️", text:"Warm wie dieser Monat…", img:"hinweis08.png" },
+      { title:"September ❤️", text:"Der Herbst kommt näher…", img:"hinweis09.png" },
+      { title:"Oktober ❤️", text:"Ein geheimnisvoller Hinweis…", img:"hinweis10.png" },
+      { title:"November ❤️", text:"Fast am Ziel…", img:"hinweis11.png" },
+      { title:"24. Dezember 🎄❤️", text:"Der letzte Hinweis…", img:"hinweis12.png" }
+    ];
 
-setInterval(()=>{
-  slides[current].classList.remove("active");
-  current=(current+1)%slides.length;
-  slides[current].classList.add("active");
-},8000);
+    const waitingTexts = [
+      "Tut mir leid… du musst dich noch etwas gedulden ❤️",
+      "Geduld ist eine Tugend… 😉",
+      "Noch nicht… aber bald 🕰️"
+    ];
 
-/* MUSIK */
-let started=false;
-document.addEventListener("click",()=>{
-  if(!started){
-    document.getElementById("bg-music").play();
-    started=true;
-  }
-});
-
-/* ===== PARTICLE EFFECTS ===== */
-function createParticle(char, color){
-  const p=document.createElement("div");
-  p.className="particle";
-  p.style.fontSize=(Math.random()*20+10)+"px";
-  p.style.color=color;
-  p.style.left=Math.random()*100+"vw";
-  p.style.top="-10px";
-  p.innerText=char;
-  document.body.appendChild(p);
-  const duration=Math.random()*5+5;
-  p.style.animationDuration=duration+"s";
-  setTimeout(()=>p.remove(),duration*1000);
-}
-
-function startParticlesForMonth(){
-  const today=new Date();
-  const month=today.getMonth()+1; // 1-12
-  const date=today.getDate();
-
-  // Winter: Schnee
-  if([1,2,3,12].includes(month)){
-    for(let i=0;i<15;i++){
-      setInterval(()=>createParticle("❄️","#fff"),800);
+    /********************************************************
+     * DATUMS-HELPER (lokal, ohne UTC-Probleme)
+     ********************************************************/
+    function parseLocalDate(dateStr){
+      const [y, m, d] = dateStr.split("-").map(Number);
+      return new Date(y, m - 1, d, 0, 0, 0, 0);
     }
-  }
 
-  // Frühling: Blümchen April & Mai
-  if([4,5].includes(month)){
-    const flowers=["🌸","🌼","💐"];
-    for(let i=0;i<15;i++){
-      setInterval(()=>createParticle(flowers[Math.floor(Math.random()*flowers.length)],"#ff69b4"),800);
+    function formatDateDE(dateStr){
+      const date = parseLocalDate(dateStr);
+      return date.toLocaleDateString("de-DE", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric"
+      });
     }
-  }
 
-  // Spezielle Tage: Herzen
-  if((month===1 && date===21) || (month===4 && date===10)){
-    for(let i=0;i<20;i++){
-      setInterval(()=>createParticle("❤️","#ff4d6d"),500);
+    function isTodayOrAfter(dateStr){
+      const today = new Date();
+      const current = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0, 0);
+      const target = parseLocalDate(dateStr);
+      return current.getTime() >= target.getTime();
     }
-  }
-}
 
-startParticlesForMonth();
+    function formatYMD(year, monthIndex, day){
+      const mm = String(monthIndex + 1).padStart(2, "0");
+      const dd = String(day).padStart(2, "0");
+      return `${year}-${mm}-${dd}`;
+    }
 
-}
-</script>
+    function randomDay(year, monthIndex){
+      const days = new Date(year, monthIndex + 1, 0).getDate();
+      return Math.floor(Math.random() * (days - 6)) + 3; // 3..(days-3)
+    }
 
+    function generateDates(){
+      const stored = localStorage.getItem(STORAGE_HINT_DATES);
+
+      if (stored) {
+        try{
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length === 12) {
+            return parsed;
+          }
+        }catch(e){}
+      }
+
+      // 12 Hinweise:
+      // Jan fix = 21.01.2026
+      // Feb-Nov random
+      // Dez fix = 24.12.2026
+      const dates = [];
+      dates.push("2026-01-21");
+
+      for(let m = 1; m <= 10; m++){
+        const d = randomDay(2026, m);
+        dates.push(formatYMD(2026, m, d));
+      }
+
+      dates.push("2026-12-24");
+
+      localStorage.setItem(STORAGE_HINT_DATES, JSON.stringify(dates));
+      return dates;
+    }
+
+    const hintDates = generateDates();
+
+    /********************************************************
+     * INITIALISIERUNG
+     ********************************************************/
+    function init(){
+      if (USE_PASSWORD && !TEST_MODE && localStorage.getItem(STORAGE_UNLOCKED) !== "true"){
+        overlay.style.display = "flex";
+        hero.style.display = "none";
+        hintsBox.style.display = "none";
+      } else {
+        overlay.style.display = "none";
+        startSite();
+      }
+    }
+
+    function checkPassword(){
+      const input = passwordInput.value.trim();
+      if(input === PASSWORD){
+        localStorage.setItem(STORAGE_UNLOCKED, "true");
+        passwordError.textContent = "";
+        overlay.style.display = "none";
+        startSite();
+      } else {
+        passwordError.textContent = "❌ Falsches Passwort";
+      }
+    }
+
+    passwordInput.addEventListener("keydown", function(e){
+      if(e.key === "Enter") checkPassword();
+    });
+
+    /********************************************************
+     * SITE START
+     ********************************************************/
+    function startSite(){
+      if(siteStarted) return;
+      siteStarted = true;
+
+      hero.style.display = "block";
+      hintsBox.style.display = "block";
+
+      setupSlideshow();
+      renderHints();
+      startCountdown();
+      updateOverview();
+      setupMusic();
+      startParticlesForMonth();
+    }
+
+    /********************************************************
+     * HINWEISE ALS BRIEFE
+     ********************************************************/
+    function getUnlockedIndexes(){
+      const unlocked = [];
+      hints.forEach((_, i) => {
+        if (TEST_MODE || isTodayOrAfter(hintDates[i])) {
+          unlocked.push(i);
+        }
+      });
+      return unlocked;
+    }
+
+    function renderHints(){
+      grid.innerHTML = "";
+
+      const unlockedIndexes = getUnlockedIndexes();
+
+      if (unlockedIndexes.length === 0){
+        const empty = document.createElement("div");
+        empty.className = "empty-note";
+        empty.innerHTML = `
+          Im Moment ist noch kein Hinweis freigeschaltet.<br>
+          Schau bald wieder vorbei ❤️
+        `;
+        grid.appendChild(empty);
+        return;
+      }
+
+      unlockedIndexes.forEach(i => {
+        grid.appendChild(createEnvelopeCard(i));
+      });
+    }
+
+    function createEnvelopeCard(index){
+      const dateText = formatDateDE(hintDates[index]);
+      const card = document.createElement("article");
+      card.className = "hint-card";
+      card.dataset.index = index;
+
+      card.innerHTML = `
+        <div class="hint-card-inner">
+          <div class="hint-meta">
+            <div class="hint-label">💌 Hinweis ${index + 1}</div>
+            <div class="hint-date">Freigeschaltet am<br><strong>${dateText}</strong></div>
+          </div>
+
+          <div class="envelope-wrap">
+            <div class="envelope" role="button" tabindex="0" aria-label="Hinweis ${index + 1} öffnen">
+              <div class="envelope-back"></div>
+
+              <div class="envelope-letter">
+                <div class="seal">❤️</div>
+                <div class="mini-text">Ein kleiner Brief wartet auf dich</div>
+              </div>
+
+              <div class="envelope-front">
+                <div class="env-left"></div>
+                <div class="env-right"></div>
+                <div class="env-bottom"></div>
+                <div class="env-flap"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="envelope-title">
+            <strong>${escapeHtml(hints[index].title)}</strong><br>
+            <span class="envelope-hint">Tippe auf den Brief, um ihn zu öffnen</span>
+          </div>
+        </div>
+      `;
+
+      const envelope = card.querySelector(".envelope");
+
+      const openHandler = () => openEnvelope(card, index);
+
+      envelope.addEventListener("click", openHandler);
+      envelope.addEventListener("keydown", function(e){
+        if(e.key === "Enter" || e.key === " "){
+          e.preventDefault();
+          openHandler();
+        }
+      });
+
+      return card;
+    }
+
+    function openEnvelope(card, index){
+      if(card.classList.contains("opening") || card.classList.contains("opened")) return;
+
+      card.classList.add("opening");
+      createHeartExplosion(card);
+
+      setTimeout(() => {
+        card.classList.remove("opening");
+        card.classList.add("opened");
+
+        const hint = hints[index];
+        const dateText = formatDateDE(hintDates[index]);
+
+        card.innerHTML = `
+          <div class="hint-card-inner hint-content">
+            <div class="hint-meta">
+              <div class="hint-label">❤️ Geöffnet</div>
+              <div class="hint-date">${dateText}</div>
+            </div>
+
+            <h3>${escapeHtml(hint.title)}</h3>
+            <p>${escapeHtml(hint.text)}</p>
+
+            <div class="hint-image">
+              <img
+                src="${hint.img}"
+                alt="${escapeHtml(hint.title)}"
+                loading="lazy"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+              />
+              <div class="img-fallback">
+                Bild konnte nicht geladen werden.<br>
+                Bitte prüfe Dateiname und Speicherort:<br>
+                <strong>${escapeHtml(hint.img)}</strong>
+              </div>
+            </div>
+
+            <div class="hint-footer">
+              <button class="small-btn" type="button">💖 Geöffnet</button>
+              <div class="small-muted">Hinweis ${index + 1} von ${hints.length}</div>
+            </div>
+          </div>
+        `;
+
+        // kleiner zweiter Burst nach dem tatsächlichen Reveal
+        createHeartExplosion(card, 12);
+      }, 760);
+    }
+
+    /********************************************************
+     * HERZ-EXPLOSION
+     ********************************************************/
+    function createHeartExplosion(target, amount = 18){
+      const rect = target.getBoundingClientRect();
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + Math.min(rect.height * 0.38, 140);
+
+      for(let i = 0; i < amount; i++){
+        const heart = document.createElement("div");
+        heart.className = "burst-heart";
+        heart.textContent = Math.random() < 0.84 ? "❤️" : "💖";
+
+        const angle = (Math.PI * 2 / amount) * i + (Math.random() * 0.55);
+        const distance = 50 + Math.random() * 90;
+        const tx = Math.cos(angle) * distance + "px";
+        const ty = Math.sin(angle) * distance + "px";
+
+        heart.style.left = x + "px";
+        heart.style.top = y + "px";
+        heart.style.setProperty("--tx", tx);
+        heart.style.setProperty("--ty", ty);
+        heart.style.fontSize = (14 + Math.random() * 18) + "px";
+
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), 1000);
+      }
+    }
+
+    /********************************************************
+     * COUNTDOWN / ÜBERSICHT
+     ********************************************************/
+    function startCountdown(){
+      const countdownEl = document.getElementById("hero-countdown");
+      const upcomingIndex = hintDates.findIndex(date => !isTodayOrAfter(date));
+      const randomText = waitingTexts[Math.floor(Math.random() * waitingTexts.length)];
+
+      function update(){
+        const nextIndex = hintDates.findIndex(date => !isTodayOrAfter(date));
+
+        if(nextIndex === -1){
+          countdownEl.innerHTML = `Alle Hinweise sind freigeschaltet ❤️`;
+          return;
+        }
+
+        const now = new Date();
+        const nextDate = parseLocalDate(hintDates[nextIndex]);
+        const diffMs = nextDate.getTime() - now.getTime();
+
+        const days = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+
+        countdownEl.innerHTML = `
+          ${randomText}<br>
+          <strong>Nächster Hinweis in ${days} ${days === 1 ? "Tag" : "Tagen"} ❤️</strong>
+        `;
+      }
+
+      update();
+
+      if (countdownInterval) clearInterval(countdownInterval);
+      countdownInterval = setInterval(update, 60000); // 1x pro Minute reicht
+    }
+
+    function updateOverview(){
+      const infoEl = document.getElementById("anniversary-text");
+      const unlocked = getUnlockedIndexes().length;
+      const remaining = hints.length - unlocked;
+
+      let latestOpen = "Noch keiner";
+      for(let i = hints.length - 1; i >= 0; i--){
+        if (TEST_MODE || isTodayOrAfter(hintDates[i])){
+          latestOpen = hints[i].title;
+          break;
+        }
+      }
+
+      infoEl.innerHTML = `
+        Bereits verfügbar: <strong>${unlocked} von ${hints.length}</strong><br>
+        Noch verborgen: <strong>${remaining}</strong><br>
+        Zuletzt freigeschaltet: <strong>${escapeHtml(latestOpen)}</strong>
+      `;
+    }
+
+    /********************************************************
+     * SLIDESHOW
+     ********************************************************/
+    function setupSlideshow(){
+      const heroContainer = document.getElementById("hero-container");
+
+      const backgrounds = [];
+      for(let i = 1; i <= BG_COUNT; i++){
+        backgrounds.push(`Hintergrund${String(i).padStart(2, "0")}.png`);
+      }
+
+      shuffle(backgrounds);
+
+      backgrounds.forEach(bg => {
+        const div = document.createElement("div");
+        div.className = "hero-slide";
+        div.style.backgroundImage = `url('${bg}')`;
+        heroContainer.prepend(div);
+      });
+
+      const slides = heroContainer.querySelectorAll(".hero-slide");
+
+      if(!slides.length) return;
+
+      let current = 0;
+      slides[current].classList.add("active");
+
+      if (slideshowInterval) clearInterval(slideshowInterval);
+      slideshowInterval = setInterval(() => {
+        slides[current].classList.remove("active");
+        current = (current + 1) % slides.length;
+        slides[current].classList.add("active");
+      }, 8000);
+    }
+
+    /********************************************************
+     * MUSIK
+     ********************************************************/
+    function setupMusic(){
+      // Browser blockiert oft Autoplay – deshalb per Button / erster Interaktion
+      musicBtn.addEventListener("click", toggleMusic);
+
+      document.addEventListener("click", autoStartMusicOnce, { once: true });
+      document.addEventListener("touchstart", autoStartMusicOnce, { once: true });
+    }
+
+    function autoStartMusicOnce(){
+      if(!musicStarted){
+        music.play().then(() => {
+          musicStarted = true;
+          musicBtn.textContent = "⏸️ Musik pausieren";
+        }).catch(() => {
+          // falls blockiert, Button bleibt nutzbar
+        });
+      }
+    }
+
+    function toggleMusic(){
+      if(music.paused){
+        music.play().then(() => {
+          musicStarted = true;
+          musicBtn.textContent = "⏸️ Musik pausieren";
+        }).catch(() => {
+          musicBtn.textContent = "🎵 Musik starten";
+        });
+      } else {
+        music.pause();
+        musicBtn.textContent = "🎵 Musik starten";
+      }
+    }
+
+    /********************************************************
+     * PARTICLES (deutlich performanter)
+     ********************************************************/
+    function createParticle(char, color){
+      const p = document.createElement("div");
+      p.className = "particle";
+      p.textContent = char;
+      p.style.left = Math.random() * 100 + "vw";
+      p.style.fontSize = (10 + Math.random() * 18) + "px";
+      p.style.color = color;
+      p.style.animationDuration = (5 + Math.random() * 5) + "s";
+      p.style.opacity = String(0.75 + Math.random() * 0.25);
+
+      document.body.appendChild(p);
+
+      const lifetime = 10500;
+      setTimeout(() => p.remove(), lifetime);
+    }
+
+    function startParticlesForMonth(){
+      if (particleInterval) clearInterval(particleInterval);
+
+      const today = new Date();
+      const month = today.getMonth() + 1;
+      const date = today.getDate();
+
+      let chars = ["❤️"];
+      let color = "#ff4d6d";
+      let speed = 1200;
+      let countPerTick = 1;
+
+      // Winter
+      if([1,2,3,12].includes(month)){
+        chars = ["❄️"];
+        color = "#ffffff";
+        speed = 1000;
+      }
+
+      // Frühling
+      if([4,5].includes(month)){
+        chars = ["🌸","🌼","💐"];
+        color = "#ff7aa2";
+        speed = 900;
+      }
+
+      // Spezielle Tage = Herzen mehr
+      if((month === 1 && date === 21) || (month === 4 && date === 10)){
+        chars = ["❤️","💖","💕"];
+        color = "#ff4d6d";
+        speed = 450;
+        countPerTick = 2;
+      }
+
+      particleInterval = setInterval(() => {
+        for(let i = 0; i < countPerTick; i++){
+          const char = chars[Math.floor(Math.random() * chars.length)];
+          createParticle(char, color);
+        }
+      }, speed);
+    }
+
+    /********************************************************
+     * HELPER
+     ********************************************************/
+    function shuffle(arr){
+      for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    /********************************************************
+     * START
+     ********************************************************/
+    init();
+
+    // Optional:
+    // Wenn du das Passwort / gespeicherte Daten zurücksetzen willst,
+    // im Browser in der Konsole ausführen:
+    //
+    // localStorage.removeItem("siteUnlocked_v1");
+    // localStorage.removeItem("hintDates_v2");
+  </script>
 </body>
 </html>
+``
