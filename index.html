@@ -1072,7 +1072,7 @@
 
             <div class="hint-footer">
               <button class="small-btn" type="button">💖 Geöffnet</button>
-              <div class="small-muted">Hinweis ${index + 1} von ${hints.length}</div>
+              <div class="small-muted">Ein weiterer Hinweis für dich ❤️</div>
             </div>
           </div>
         `;
@@ -1145,25 +1145,16 @@
       countdownInterval = setInterval(update, 60000); // 1x pro Minute reicht
     }
 
-    function updateOverview(){
-      const infoEl = document.getElementById("anniversary-text");
-      const unlocked = getUnlockedIndexes().length;
-      const remaining = hints.length - unlocked;
+    
+function updateOverview(){
+  const infoEl = document.getElementById("anniversary-text");
 
-      let latestOpen = "Noch keiner";
-      for(let i = hints.length - 1; i >= 0; i--){
-        if (TEST_MODE || isTodayOrAfter(hintDates[i])){
-          latestOpen = hints[i].title;
-          break;
-        }
-      }
+  infoEl.innerHTML = `
+    Lass dich überraschen ❤️<br>
+    Neue Hinweise erscheinen nach und nach…
+  `;
+}
 
-      infoEl.innerHTML = `
-        Bereits verfügbar: <strong>${unlocked} von ${hints.length}</strong><br>
-        Noch verborgen: <strong>${remaining}</strong><br>
-        Zuletzt freigeschaltet: <strong>${escapeHtml(latestOpen)}</strong>
-      `;
-    }
 
     /********************************************************
      * SLIDESHOW
